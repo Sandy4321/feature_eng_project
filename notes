@@ -1,0 +1,9 @@
+current baseline:
+features:
+bag of words with tokens that are
+    1) >= 3 chars
+    2) all converted to lowercase
+vw_model:
+using oaa(one-against-all)
+
+accuracy score = 0.8840025493945188
