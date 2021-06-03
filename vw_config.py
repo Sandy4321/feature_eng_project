@@ -1,10 +1,15 @@
-filepath = "C:\\Users\\tan.yih\\Downloads\\20news_noDups"
+import os
+proj_filepath = os.getcwd()
+raw_data_fpath = os.path.join(proj_filepath, '20news_noDup')
+processed_data_fpath = os.path.join(proj_filepath, 'processed_data')
+pred_fpath = os.path.join(proj_filepath, 'predictions')
+tokenized_filename = '20news_tokens.txt'
 train_filename = "20news_train.vw"
 test_filename = "20news_test.vw"
 test_pred_filename = "20news_test_predictions.txt"
 model_filename = "20news_model.vw"
 
-
+# baseline model
 vw_opts = {
     # General options
     "random_seed": 1,
