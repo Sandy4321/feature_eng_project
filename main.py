@@ -90,7 +90,7 @@ def main():
     # data processing
     spacy_nlp = spacy.load('en_core_web_md')
     word_embeddings(spacy_nlp, docs=train_docs, filepath=processed_data_fpath, filename=tokenized_filename)
-
+    """
     # store training data
     store_train_data_vw_format(
         processed_data_fpath, filename=train_filename, docs=train_docs, labels=train_labels
@@ -113,6 +113,6 @@ def main():
         pred_fpath = pred_fpath,
         pred_filename=test_pred_filename,
     )
-
+    """
 if __name__ == "__main__":
     main()

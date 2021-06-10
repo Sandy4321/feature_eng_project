@@ -52,10 +52,12 @@ def extract_tokens(docs, tokenizer, filepath, filename):
 
 # calculate word vectors for document, append to list. When all vectors compiled, write it out into a separate file
 def word_embeddings(spacy_nlp, docs, filepath, filename):
+    """
     if os.path.isfile(os.path.join(filepath, filename)):
         compiled_vectors = np.load(os.path.join(filepath, filename), allow_pickle=True)
         return compiled_vectors
     else:
+    """
         compiled_vectors = []
         with spacy_nlp.disable_pipes():
             for document in docs:
