@@ -5,50 +5,28 @@ import spacy
 # ML modules
 from vowpalwabbit import pyvw
 from sklearn.datasets import load_files
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import seaborn as sns
 import matplotlib.pyplot as plt
 # project modules
 from vw_config import (
     vw_opts,
+    target_dict,
+    proj_filepath,
     raw_data_fpath,
     processed_data_fpath,
-    pred_fpath,
-    tokenized_filename,
+    pre_processed_filename,
+    pure_text_lemmatized_filename,
+    vectorized_filename,
     train_filename,
     test_filename,
-    test_pred_filename,
+    pred_fpath,
+    pred_filename
 )
-from data_wrangling import bag_of_words, word_embeddings
-
-
-def load_data(filepath):
-    # load newsgroup data in
-    all_train_newsgroups = load_files(filepath, encoding="ANSI")
-    all_train_data = all_train_newsgroups["data"]
-    topic_encoder = LabelEncoder()
-    all_targets = topic_encoder.fit_transform(all_train_newsgroups["target"]) + 1
-    # split data into train and test set
-    train_docs, test_docs, train_labels, test_labels = train_test_split(
-        all_train_data, all_targets, test_size=0.25, random_state=1
-    )
-    return train_docs, test_docs, train_labels, test_labels
-
-
-def store_train_data_vw_format(filepath, filename, docs, labels):
-    with open(os.path.join(filepath, filename), "w") as vw_data:
-        for text, target in zip(docs, labels):
-            vw_data.write(bag_of_words(text, target))
-    return 0
-
-
-def store_eval_data_vw_format(filepath, filename, docs):
-    with open(os.path.join(filepath, filename), "w") as vw_data:
-        for text in docs:
-            vw_data.write(bag_of_words(text))
-    return 0
+from data_wrangling import text_lemmatization, word_embedding
+from data_pre_processing import sk_to_pd_df, text_pre_processing
+from convert_to_vw_format import pd_to_vw_fmt
 
 
 def train_model(vw_model, filepath, filename):
@@ -73,6 +51,8 @@ def eval_model(vw_model, processed_data_fpath, filename, labels, pred_fpath, pre
             pred_file.write(str(pred) + "\n")
     print("Classification report:")
     print(classification_report(labels, predictions))
+    print("Accuracy score:")
+    print(accuracy_score(labels, predictions))
 
     plot_cm = False
     if plot_cm:
@@ -85,19 +65,29 @@ def eval_model(vw_model, processed_data_fpath, filename, labels, pred_fpath, pre
 
 def main():
     #  loading in data
-    train_docs, test_docs, train_labels, test_labels = load_data(raw_data_fpath)
+    newsgroups = load_files(raw_data_fpath, encoding='ANSI')
+    df = sk_to_pd_df(newsgroups, target_dict)
 
     # data processing
     spacy_nlp = spacy.load('en_core_web_md')
-    word_embeddings(spacy_nlp, docs=train_docs, filepath=processed_data_fpath, filename=tokenized_filename)
-    """
+    df = text_pre_processing(spacy_nlp, df, 'Subject', 'pure_text', processed_data_fpath, pre_processed_filename,
+                             load_file=True)
+    df = text_lemmatization(spacy_nlp, df, 'pure_text', processed_data_fpath, pure_text_lemmatized_filename,
+                            load_file=True)
+    df = word_embedding(spacy_nlp, df, ['Subject', 'pure_text'], processed_data_fpath, vectorized_filename,
+                        load_file=False)
+
     # store training data
-    store_train_data_vw_format(
-        processed_data_fpath, filename=train_filename, docs=train_docs, labels=train_labels
-    )
+    data_train, data_test = train_test_split(df, test_size=0.25, random_state=1)
+    pd_to_vw_fmt(pd_df=data_train, text_sections_to_convert=['From'],
+                 vector_sections_to_convert=[('pure_text', 'pure_text_vectors'), ('Subject', 'Subject_vectors')],
+                 filepath=proj_filepath, filename=train_filename, train=True)
     # store testing data
-    store_eval_data_vw_format(processed_data_fpath, filename=test_filename, docs=test_docs)
-    
+    pd_to_vw_fmt(pd_df=data_test, text_sections_to_convert=['From'],
+                 vector_sections_to_convert=[('pure_text', 'pure_text_vectors'), ('Subject', 'Subject_vectors')],
+                 filepath=proj_filepath, filename=test_filename, train=False)
+    test_labels = data_test['target']   # for model evaluation
+
     # generate vw_model with corresponding params
     vw_model = pyvw.vw(**vw_opts)
 
@@ -107,12 +97,13 @@ def main():
     # evaluate vw_model against test set
     eval_model(
         vw_model,
-        processed_data_fpath = processed_data_fpath,
+        processed_data_fpath=processed_data_fpath,
         filename=test_filename,
         labels=test_labels,
-        pred_fpath = pred_fpath,
-        pred_filename=test_pred_filename,
+        pred_fpath=pred_fpath,
+        pred_filename=pred_filename,
     )
-    """
+
+
 if __name__ == "__main__":
     main()
