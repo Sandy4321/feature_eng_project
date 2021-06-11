@@ -27,21 +27,22 @@ def extract_from_df_row(list_of_words, list_of_vectors):
 
 
 # incoming format: [word1_text, vector1[]], [word2_text, vector2[]], ... ]
-# output format: ['|subj, 'word1:d0', ...'word1:d299', ... ,'word2:d0', ..., '|text', 'word1:d0' ...]
+# output format: ['|subj_d1', 'subj_word_1:d1', 'subj_word_n:d1' , '|subj_d2', 'subj_word_1_d2', ...,
+#                 '|text_d1', 'text_word_1_d1', ...]
 def reorder_word_vectors(section_word_vectors, section):
     section_vw = []
     vector_index = 1
-    section_vw.append(f"|{section}")
-    while vector_index != 301:  # indexing starts at 1 because word_vect[0] == word_text
+    while vector_index != 301: # indexing starts at 1 because word_vect[0] == word_text
+        section_vw.append(f"|{section}_d{vector_index}")
         for word_vect in section_word_vectors:
-            section_vw.append(f"{word_vect[0]}{vector_index}:{word_vect[vector_index]}")
+            section_vw.append(f"{word_vect[0]}:{word_vect[vector_index]}")
         vector_index += 1
     return section_vw
 
 
 # goal: 1 |subj_d1 subj_word1:d1 subj_word2:d1 ... |subj_d2 subj_word1:d2 ... |text_d1 text_word1:d1 text_word2:d1 ...
-def vectors_to_vw_fmt(vector_sections_to_convert, vw_str, data):
-    for pd_series_text, pd_series_vectors in vector_sections_to_convert:
+def word_vectors_to_vw_fmt(word_vector_sections_to_convert, vw_str, data):
+    for pd_series_text, pd_series_vectors in word_vector_sections_to_convert:
         word_rgx = re.compile(r'\w+')
         list_of_words = word_rgx.findall(data[pd_series_text])
         section = f"{pd_series_text}"
@@ -60,19 +61,57 @@ def vectors_to_vw_fmt(vector_sections_to_convert, vw_str, data):
     return vw_str
 
 
+# goal: 1 |subj_d1 d1, |subj_d2 d2, ... |text_d1 d1, |text_d2 d2, ...
+def doc_vectors_to_vw_fmt(doc_vector_sections_to_convert, vw_str, data):
+    for pd_series in doc_vector_sections_to_convert:
+        vector_index = 1
+        for dim in data[pd_series]:
+            vw_str = f"{vw_str} |{pd_series}_d{vector_index} {dim}"
+            vector_index += 1
+
+    return vw_str
+
+
 def store_vw_fmt(vw_str, filepath, filename):
     # write combined str to .txt file
     with open(os.path.join(filepath, filename), 'a') as storage_f:
         storage_f.write(f"{vw_str}\n")
 
 
-# note: text_sections_to_convert expect a list as argument, vector_sections_to_convert expects a tuple or list
-def pd_to_vw_fmt(pd_df, text_sections_to_convert, vector_sections_to_convert, filepath, filename, train):
+def store_test_labels(filepath, test_label_filename, pd_df):
+    # remove pre-existing file
+    if os.path.isfile(os.path.join(filepath, test_label_filename)):
+        os.remove(os.path.join(filepath, test_label_filename))
+    test_labels = pd_df['target']
+    with open(os.path.join(filepath, test_label_filename), 'a') as test_labels_f:
+        for label in test_labels:
+            test_labels_f.write(f"{label}\n")
+
+
+# note: for arguments,
+# text_sections_to_convert expect a list
+# vector_sections_to_convert expects a tuple
+# doc_vector_sections_to_convert expect a list
+def pd_to_vw_fmt(pd_df, text_sections_to_convert, word_vector_sections_to_convert, doc_vector_sections_to_convert,
+                 filepath, filename, train):
     # convert each row in pandas df into vw format
+    print('Çonverting to vw format...')
+    if not train:
+        test_label_filename = f"test_labels.txt"
+        store_test_labels(filepath, test_label_filename, pd_df)
+    # remove pre-existing dataframe
+    if os.path.isfile(os.path.join(filepath, filename)):
+        os.remove(os.path.join(filepath, filename))
     for index, data in tqdm(pd_df.iterrows()):
         # convert only text data
         vw_str = text_to_vw_fmt(text_sections_to_convert, train, data)
         # convert text with word embeddings
-        vw_str = vectors_to_vw_fmt(vector_sections_to_convert, vw_str, train, data)
+        vw_str = word_vectors_to_vw_fmt(word_vector_sections_to_convert, vw_str, data)
+        # convert text with doc mean vector
+        vw_str = doc_vectors_to_vw_fmt(doc_vector_sections_to_convert, vw_str, data)
         # store as .txt file
         store_vw_fmt(vw_str, filepath, filename)
+    print('Converted to vw format!')
+
+    return 0
+

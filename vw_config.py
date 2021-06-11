@@ -5,14 +5,15 @@ raw_data_fpath = os.path.join(proj_filepath, '20news_noDup')
 processed_data_fpath = os.path.join(proj_filepath, 'processed_data')
 pre_processed_filename = 'pre_processed_text'
 pure_text_lemmatized_filename = 'pure_text_lemmatized'
-vectorized_filename = 'data_vectorized'
+words_vectorized_filename = 'data_word_vectorized'
+doc_vectorized_filename = 'data_mean_vectors'
 
 train_filename = 'train_vectors_vw.txt'
 test_filename = 'test_vectors_vw.txt'
 pred_fpath = os.path.join(proj_filepath, 'predictions')
 pred_filename = 'pred_vw.txt'
 
-# baseline model
+# vw model options
 vw_opts = {
     # General options
     "random_seed": 1,
@@ -21,7 +22,9 @@ vw_opts = {
     "progress": 1000,
     # Example Manipulation options
     # Update rule options
+    "loss_function": "logistic",
     # Weight options
+    "bit_precision": 28,
     # Holdout options
     # Feature namespace options
     # Multiclass options

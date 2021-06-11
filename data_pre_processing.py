@@ -12,8 +12,6 @@ def sk_to_pd_df(sk_bunch, target_dict):
     pd_df = pd.DataFrame(data=[sk_bunch.data, sk_bunch.target])
     pd_df = pd_df.transpose()
     pd_df.columns = ['text', 'target']
-    pd_df['text'].astype("string")
-
     pd_df["target"] = pd_df["target"].map(target_dict)
     return pd_df
 
@@ -119,9 +117,12 @@ def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, fil
         # store pre-processed text into a separate file for later retrieval
         with open(os.path.join(filepath, filename), 'w') as storage_f:
             pd_df.to_csv(path_or_buf=storage_f, index=False)
+            print('Pre-processed text stored!')
+            print('Pre-processed text loaded!')
 
     # load dataframe from memory
     if load_file:
         pd_df = load_from_csv(filepath, filename)
+        print('Pre-processed text loaded!')
 
     return pd_df
