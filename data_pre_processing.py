@@ -2,6 +2,7 @@
 import os
 import re
 import pandas as pd
+from collections import OrderedDict
 from tqdm import tqdm
 # project modules
 from data_wrangling import load_from_csv
@@ -91,13 +92,15 @@ def text_rmv_noise(spacy_nlp, pd_df, pd_series):
                     if not token.is_stop:
                         tokens_no_sw.append(token.lower_)
 
+            # removing duplicate tokens
+            tokens_no_dup = list(OrderedDict.fromkeys(tokens_no_sw))
             # converting from list to string
             separator = ' '
-            tokens_no_sw_string = separator.join(tokens_no_sw)
+            tokens_no_dup_string = separator.join(tokens_no_dup)
             # blank line
-            if len(tokens_no_sw_string) == 0:
-                tokens_no_sw_string = ' '
-            pd_df[pd_series].replace(to_replace=doc, value=tokens_no_sw_string, inplace=True)
+            if len(tokens_no_dup_string) == 0:
+                tokens_no_dup_string = ' '
+            pd_df.loc[:, pd_series].replace(to_replace=doc, value=tokens_no_dup_string, inplace=True)
 
     return 0
 

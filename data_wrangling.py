@@ -34,6 +34,9 @@ def load_from_csv(filepath, filename):
 
 def text_lemmatization(spacy_nlp, pd_df, pd_series, filepath, filename, load_file=False):
     if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['lemmatizer', 'tokenizer', 'tagger', 'attribute_ruler']):
             for doc in tqdm(pd_df[pd_series]):
                 doc_lemmas = [token.lemma_ for token in spacy_nlp(doc)]
@@ -63,6 +66,9 @@ def null_array(n):
 
 def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
             print('Extracting word vectors...')
             for pd_series in tqdm(list_pd_series):
@@ -70,10 +76,13 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
                 for doc in pd_df[pd_series]:
                     doc_vectors = []
                     for token in spacy_nlp(doc):
-                        if token.is_space:
+                        if token.is_space or np.sum(token.vector) == 0:
+                            # preventing divide by zero error
                             doc_vectors.append(null_array(300))
                         else:
-                            doc_vectors.append(token.vector)
+                            # normalize vector to [0, 1]
+                            word_vector = ((token.vector / token.vector_norm) + 1) / 2
+                            doc_vectors.append(word_vector)
                     compiled_vectors.append(doc_vectors)
                 # insert doc vectors in pandas df
                 pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_vectors', value=compiled_vectors)
@@ -88,6 +97,9 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
 
 def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
             for pd_series in tqdm(list_pd_series):
                 print(f"Extracting {pd_series} mean vector...")
@@ -95,6 +107,12 @@ def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_
                 for text in pd_df[pd_series]:
                     doc = spacy_nlp(text)
                     doc_vector = doc.vector
+                    if np.sum(doc.vector) == 0:
+                        # preventing divide by zero error
+                        doc_vector = null_array(300)
+                    else:
+                        # normalize vector to [0, 1]
+                        doc_vector = ((doc.vector / doc.vector_norm) + 1) / 2
                     compiled_mean_vectors.append(doc_vector)
                 # insert compiled_mean_vectors in pandas df
                 pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)

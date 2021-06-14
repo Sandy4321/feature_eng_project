@@ -50,7 +50,8 @@ def word_vectors_to_vw_fmt(word_vector_sections_to_convert, vw_str, data):
         # extract this format: [word1, vector1[]], [word2, vector2[]], ...] from pandas df
         section_word_vectors = extract_from_df_row(list_of_words, data[pd_series_vectors])
 
-        # output format: ['|subj, 'word1:d0', ...'word1:d299', ... ,'word2:d0', ..., '|text', 'word1:d299', ...]
+        # output format: ['|subj_d1', 'subj_word_1:d1', 'subj_word_n:d1' , '|subj_d2', 'subj_word_1_d2', ...,
+        #                 '|text_d1', 'text_word_1_d1', ...]
         section_vw = reorder_word_vectors(section_word_vectors, section)
 
         # convert to str
@@ -90,7 +91,7 @@ def store_test_labels(filepath, test_label_filename, pd_df):
 
 # note: for arguments,
 # text_sections_to_convert expect a list
-# vector_sections_to_convert expects a tuple
+# vector_sections_to_convert expects a list of tuples
 # doc_vector_sections_to_convert expect a list
 def pd_to_vw_fmt(pd_df, text_sections_to_convert, word_vector_sections_to_convert, doc_vector_sections_to_convert,
                  filepath, filename, train):
@@ -99,7 +100,7 @@ def pd_to_vw_fmt(pd_df, text_sections_to_convert, word_vector_sections_to_conver
     if not train:
         test_label_filename = f"test_labels.txt"
         store_test_labels(filepath, test_label_filename, pd_df)
-    # remove pre-existing dataframe
+    # remove pre-existing file
     if os.path.isfile(os.path.join(filepath, filename)):
         os.remove(os.path.join(filepath, filename))
     for index, data in tqdm(pd_df.iterrows()):

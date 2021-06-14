@@ -74,23 +74,23 @@ def main():
                              load_file=True)
     df = text_lemmatization(spacy_nlp, df, 'pure_text', processed_data_fpath, pure_text_lemmatized_filename,
                             load_file=True)
-    """
+
     df = doc_mean_vectors(spacy_nlp, df, ['Subject'], processed_data_fpath, doc_vectorized_filename,
                           load_file=False)
-    """
-    df = word_embedding(spacy_nlp, df, ['Subject'], processed_data_fpath, words_vectorized_filename,
+
+    df = word_embedding(spacy_nlp, df, ['pure_text'], processed_data_fpath, words_vectorized_filename,
                         load_file=False)
 
     # store training data
     data_train, data_test = train_test_split(df, test_size=0.25, random_state=1)
-    pd_to_vw_fmt(pd_df=data_train, text_sections_to_convert=['From', 'pure_text'],
-                 word_vector_sections_to_convert=[('Subject', 'Subject_vectors')],
-                 doc_vector_sections_to_convert=[],
+    pd_to_vw_fmt(pd_df=data_train, text_sections_to_convert=['From'],
+                 word_vector_sections_to_convert=[('pure_text', 'pure_text_vectors')],
+                 doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=train_filename, train=True)
     # store testing data
-    pd_to_vw_fmt(pd_df=data_test, text_sections_to_convert=['From', 'pure_text'],
-                 word_vector_sections_to_convert=[('Subject', 'Subject_vectors')],
-                 doc_vector_sections_to_convert=[],
+    pd_to_vw_fmt(pd_df=data_test, text_sections_to_convert=['From'],
+                 word_vector_sections_to_convert=[('pure_text', 'pure_text_vectors')],
+                 doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=test_filename, train=False)
 
     test_labels = data_test['target']   # for model evaluation
