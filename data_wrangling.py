@@ -34,6 +34,9 @@ def load_from_csv(filepath, filename):
 
 def text_lemmatization(spacy_nlp, pd_df, pd_series, filepath, filename, load_file=False):
     if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['lemmatizer', 'tokenizer', 'tagger', 'attribute_ruler']):
             for doc in tqdm(pd_df[pd_series]):
                 doc_lemmas = [token.lemma_ for token in spacy_nlp(doc)]
@@ -45,11 +48,13 @@ def text_lemmatization(spacy_nlp, pd_df, pd_series, filepath, filename, load_fil
                 # store lemmatized text into a separate file for later retrieval
             with open(os.path.join(filepath, filename), 'w') as storage_f:
                 pd_df.to_csv(path_or_buf=storage_f, index=False)
+                print('Lemmatized text stored!')
+                print('Lemmatized text loaded!')
 
     # load dataframe from memory
     if load_file:
         pd_df = load_from_csv(filepath, filename)
-
+        print('Lemmatized text loaded!')
     return pd_df
 
 
@@ -61,20 +66,60 @@ def null_array(n):
 
 def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
+            print('Extracting word vectors...')
             for pd_series in tqdm(list_pd_series):
                 compiled_vectors = []
-                for doc in tqdm(pd_df[pd_series]):
+                for doc in pd_df[pd_series]:
                     doc_vectors = []
                     for token in spacy_nlp(doc):
-                        if token.is_space:
+                        if token.is_space or np.sum(token.vector) == 0:
+                            # preventing divide by zero error
                             doc_vectors.append(null_array(300))
                         else:
-                            doc_vectors.append(token.vector)
+                            # normalize vector to [0, 1]
+                            word_vector = ((token.vector / token.vector_norm) + 1) / 2
+                            doc_vectors.append(word_vector)
                     compiled_vectors.append(doc_vectors)
                 # insert doc vectors in pandas df
                 pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_vectors', value=compiled_vectors)
+            print('Word vectors loaded!')
+
     if load_file:
         pd_df = load_from_csv(filepath, filename)
+        print('Word vectors loaded!')
+
+    return pd_df
+
+
+def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
+    if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
+        with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
+            for pd_series in tqdm(list_pd_series):
+                print(f"Extracting {pd_series} mean vector...")
+                compiled_mean_vectors = []
+                for text in pd_df[pd_series]:
+                    doc = spacy_nlp(text)
+                    doc_vector = doc.vector
+                    if np.sum(doc.vector) == 0:
+                        # preventing divide by zero error
+                        doc_vector = null_array(300)
+                    else:
+                        # normalize vector to [0, 1]
+                        doc_vector = ((doc.vector / doc.vector_norm) + 1) / 2
+                    compiled_mean_vectors.append(doc_vector)
+                # insert compiled_mean_vectors in pandas df
+                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)
+            print(f"{pd_series} mean vectors loaded!")
+
+    if load_file:
+        pd_df = load_from_csv(filepath, filename)
+        print('Mean vectors loaded!')
 
     return pd_df
