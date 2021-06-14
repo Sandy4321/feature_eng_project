@@ -32,15 +32,6 @@ vw_opts = {
     # Other options
 }
 
-# data processing options
-data_proc_opts = [
-    # bag of words
-    # doc vectors
-    ('Subject', 'Subject_vectors'),
-    # word vectors
-    ('pure_text', 'pure_text_vectors')
-]
-
 # for conversion to vw format for multiclass model
 target_dict = {
         0: 1,
