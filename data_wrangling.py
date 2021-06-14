@@ -76,7 +76,7 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
                 for doc in pd_df[pd_series]:
                     doc_vectors = []
                     for token in spacy_nlp(doc):
-                        if token.is_space or np.sum(token.vector) == 0:
+                        if token.is_space or token.is_oov:
                             # preventing divide by zero error
                             doc_vectors.append(null_array(300))
                         else:
