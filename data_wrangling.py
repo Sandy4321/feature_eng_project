@@ -44,7 +44,7 @@ def text_lemmatization(spacy_nlp, pd_df, pd_series, filepath, filename, load_fil
                 separator = ' '
                 doc_lemmas_string = separator.join(doc_lemmas)
                 # replace text in pandas df
-                pd_df[pd_series].replace(to_replace=doc, value=doc_lemmas_string, inplace=True)
+                pd_df.loc[:, pd_series].replace(to_replace=doc, value=doc_lemmas_string, inplace=True)
                 # store lemmatized text into a separate file for later retrieval
             with open(os.path.join(filepath, filename), 'w') as storage_f:
                 pd_df.to_csv(path_or_buf=storage_f, index=False)
@@ -95,6 +95,30 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
     return pd_df
 
 
+def sentence_vectors(spacy_nlp, pd_df, list_pd_series):
+    with spacy_nlp.select_pipes(enable=['tok2vec', 'parser']):
+        print('Extracting sentence vectors...')
+        for pd_series in tqdm(list_pd_series):
+            compiled_sent_vectors = []
+            for text in pd_df[pd_series]:
+                doc = spacy_nlp(text)
+                sentences = list(doc.sents)
+                sentences_vectors = []
+                for sentence in sentences:
+                    if sentence.vector_norm == 0:
+                        # preventing divide by zero error
+                        sentences_vectors.append(null_array(300))
+                    else:
+                        # Vector normalisation into the range [0,1]
+                        sent_vect = ((sentence.vector / sentence.vector_norm) + 1) / 2
+                        sentences_vectors.append(sent_vect.astype("float64"))
+                compiled_sent_vectors.append(sentences_vectors)
+            # insert doc vectors in pandas df
+            pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_s_vect', value=compiled_sent_vectors)
+        print('Sentence vectors loaded!')
+    return pd_df
+
+
 def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
         # remove pre-existing file
@@ -106,7 +130,6 @@ def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_
                 compiled_mean_vectors = []
                 for text in pd_df[pd_series]:
                     doc = spacy_nlp(text)
-                    doc_vector = doc.vector
                     if np.sum(doc.vector) == 0:
                         # preventing divide by zero error
                         doc_vector = null_array(300)

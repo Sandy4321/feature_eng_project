@@ -24,7 +24,7 @@ from vw_config import (
     pred_fpath,
     pred_filename
 )
-from data_wrangling import text_lemmatization, word_embedding, doc_mean_vectors
+from data_wrangling import text_lemmatization, word_embedding, sentence_vectors, doc_mean_vectors
 from data_pre_processing import sk_to_pd_df, text_pre_processing
 from convert_to_vw_format import pd_to_vw_fmt
 
@@ -72,24 +72,31 @@ def main():
     spacy_nlp = spacy.load('en_core_web_md')
     df = text_pre_processing(spacy_nlp, df, 'Subject', 'pure_text', processed_data_fpath, pre_processed_filename,
                              load_file=True)
+
     df = text_lemmatization(spacy_nlp, df, 'pure_text', processed_data_fpath, pure_text_lemmatized_filename,
-                            load_file=True)
+                            load_file=False)
 
     df = doc_mean_vectors(spacy_nlp, df, ['Subject'], processed_data_fpath, doc_vectorized_filename,
                           load_file=False)
 
-    df = word_embedding(spacy_nlp, df, ['pure_text'], processed_data_fpath, words_vectorized_filename,
-                        load_file=False)
+    df = sentence_vectors(spacy_nlp, df, ['pure_text'])
+
+    # df = word_embedding(spacy_nlp, df, ['pure_text'], processed_data_fpath, words_vectorized_filename,
+    #                    load_file=False)
 
     # store training data
     data_train, data_test = train_test_split(df, test_size=0.25, random_state=1)
-    pd_to_vw_fmt(pd_df=data_train, text_sections_to_convert=['From'],
-                 word_vector_sections_to_convert=[('pure_text', 'pure_text_vectors')],
+    pd_to_vw_fmt(pd_df=data_train, spacy_nlp=spacy_nlp,
+                 text_sections_to_convert=[],
+                 word_vector_sections_to_convert=[],
+                 sent_vector_sections_to_convert=[('pure_text', 'pure_text_s_vect')],
                  doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=train_filename, train=True)
     # store testing data
-    pd_to_vw_fmt(pd_df=data_test, text_sections_to_convert=['From'],
-                 word_vector_sections_to_convert=[('pure_text', 'pure_text_vectors')],
+    pd_to_vw_fmt(pd_df=data_test, spacy_nlp=spacy_nlp,
+                 text_sections_to_convert=[],
+                 word_vector_sections_to_convert=[],
+                 sent_vector_sections_to_convert=[('pure_text', 'pure_text_s_vect')],
                  doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=test_filename, train=False)
 

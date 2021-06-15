@@ -111,11 +111,11 @@ def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, fil
         # remove pre-existing dataframe
         if os.path.isfile(os.path.join(filepath, filename)):
             os.remove(os.path.join(filepath, filename))
-        extract_section_From(pd_df)
+        # extract_section_From(pd_df) <- dropping due to low ability to generalise
         extract_section_Subject(pd_df)
         extract_section_pure_text(pd_df)
         text_rmv_noise(spacy_nlp, pd_df, pd_series_subject)
-        text_rmv_noise(spacy_nlp, pd_df, pd_series_text)
+        # text_rmv_noise(spacy_nlp, pd_df, pd_series_text)
         pd_df.drop(columns=['text'], inplace=True)
         # store pre-processed text into a separate file for later retrieval
         with open(os.path.join(filepath, filename), 'w') as storage_f:
