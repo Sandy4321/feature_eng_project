@@ -2,7 +2,6 @@
 import os
 import re
 import pandas as pd
-from collections import OrderedDict
 from tqdm import tqdm
 # project modules
 from data_wrangling import load_from_csv
@@ -83,7 +82,7 @@ def extract_text_info(pd_df):
             text_content_list.append(text_content)
         except NameError as error:
             print(error)
-    pd_df.insert(loc=len(pd_df.columns), column='text_content', value=text_content_list)
+    pd_df.insert(loc=len(pd_df.columns), column='text_data', value=text_content_list)
 
     return 0
 
@@ -113,7 +112,7 @@ def text_rmv_noise(spacy_nlp, pd_df, pd_series):
     return 0
 
 
-def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, filepath, filename, load_file=False):
+def text_pre_processing(spacy_nlp, pd_df, filepath, filename, load_file=False):
     # generate new dataframe
     if not load_file:
         print('Extracting pre-processed text...')
@@ -122,9 +121,10 @@ def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, fil
             os.remove(os.path.join(filepath, filename))
         extract_section_Subject(pd_df)
         extract_section_pure_text(pd_df)
-        # extract_text_info(pd_df)
-        text_rmv_noise(spacy_nlp, pd_df, pd_series_subject)
-        text_rmv_noise(spacy_nlp, pd_df, pd_series_text)
+        extract_text_info(pd_df)
+        text_rmv_noise(spacy_nlp, pd_df, 'Subject')
+        text_rmv_noise(spacy_nlp, pd_df, 'pure_text')
+        text_rmv_noise(spacy_nlp, pd_df, 'text_data')
         pd_df.drop(columns=['text'], inplace=True)
         # store pre-processed text into a separate file for later retrieval
         with open(os.path.join(filepath, filename), 'w') as storage_f:

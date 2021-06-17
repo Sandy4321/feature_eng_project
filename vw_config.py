@@ -1,11 +1,13 @@
 import os
 proj_filepath = os.getcwd()
 raw_data_fpath = os.path.join(proj_filepath, '20news_noDup')
+bpemb_model_fpath = os.path.join(proj_filepath, 'bpemb_model')
 
 processed_data_fpath = os.path.join(proj_filepath, 'processed_data')
 pre_processed_filename = 'pre_processed_text'
+dups_removed_filename = 'no_dup_words'
 pure_text_lemmatized_filename = 'pure_text_lemmatized'
-words_vectorized_filename = 'data_word_vectorized'
+words_vectorized_filename = 'data_word_vectors'
 doc_vectorized_filename = 'data_mean_vectors'
 
 train_filename = 'train_vectors_vw.txt'
