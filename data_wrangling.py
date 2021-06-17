@@ -4,6 +4,7 @@ import re
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from collections import OrderedDict
 # project modules
 
 
@@ -32,29 +33,71 @@ def load_from_csv(filepath, filename):
         return -1
 
 
-def text_lemmatization(spacy_nlp, pd_df, pd_series, filepath, filename, load_file=False):
+def remove_dup_words(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
+    if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
+        with spacy_nlp.select_pipes(enable='tokenizer'):
+            for pd_series in list_pd_series:
+                print(f"Removing dup words in {pd_series}...")
+                unique_str_list = []
+                for doc in tqdm(pd_df[pd_series]):
+                    all_tokens = []
+                    doc_unique_str = f""
+                    for token in spacy_nlp(doc):
+                        all_tokens.append(token.text)
+                        unique_tokens = OrderedDict.fromkeys(all_tokens)
+
+                    for key in unique_tokens:
+                        doc_unique_str += f"{key} "
+
+                    if len(doc_unique_str) == 0:
+                        doc_unique_str = f" "
+                    unique_str_list.append(doc_unique_str)
+                pd_df.insert(loc=len(pd_df.columns), column=pd_series + '_unq', value=unique_str_list)
+        with open(os.path.join(filepath, filename), 'w') as storage_f:
+            pd_df.to_csv(path_or_buf=storage_f, index=False)
+            print('Unique words stored!')
+            print('Unique words stored!')
+
+    # load dataframe from memory
+    if load_file:
+        print('Loading unique words...')
+        pd_df = load_from_csv(filepath, filename)
+        print('Unique words loaded!')
+    return pd_df
+
+
+def text_lemmatization(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
         # remove pre-existing file
         if os.path.isfile(os.path.join(filepath, filename)):
             os.remove(os.path.join(filepath, filename))
         with spacy_nlp.select_pipes(enable=['lemmatizer', 'tokenizer', 'tagger', 'attribute_ruler']):
-            for doc in tqdm(pd_df[pd_series]):
-                doc_lemmas = [token.lemma_ for token in spacy_nlp(doc)]
-                # converting from list to string
-                separator = ' '
-                doc_lemmas_string = separator.join(doc_lemmas)
-                # replace text in pandas df
-                pd_df[pd_series].replace(to_replace=doc, value=doc_lemmas_string, inplace=True)
-                # store lemmatized text into a separate file for later retrieval
-            with open(os.path.join(filepath, filename), 'w') as storage_f:
-                pd_df.to_csv(path_or_buf=storage_f, index=False)
-                print('Lemmatized text stored!')
-                print('Lemmatized text loaded!')
+            for pd_series in list_pd_series:
+                print(f"Extracting {pd_series} lemmas...")
+                compiled_lemmas = []
+                for doc in tqdm(pd_df[pd_series]):
+                    doc_lemmas = [token.lemma_ for token in spacy_nlp(doc)]
+                    # converting from list to string
+                    separator = ' '
+                    doc_lemmas_string = separator.join(doc_lemmas)
+                    # replace text in pandas df
+                    compiled_lemmas.append(doc_lemmas_string)
+                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_lem', value=compiled_lemmas)
 
-    # load dataframe from memory
+        # store lemmatized text into a separate file for later retrieval
+        with open(os.path.join(filepath, filename), 'w') as storage_f:
+            pd_df.to_csv(path_or_buf=storage_f, index=False)
+            print('Lemmatized text stored!')
+            print('Lemmatized text loaded!')
+
     if load_file:
+        print('Loading lemmatized text...')
         pd_df = load_from_csv(filepath, filename)
         print('Lemmatized text loaded!')
+
     return pd_df
 
 
@@ -69,12 +112,13 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
         # remove pre-existing file
         if os.path.isfile(os.path.join(filepath, filename)):
             os.remove(os.path.join(filepath, filename))
-        with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
-            print('Extracting word vectors...')
-            for pd_series in tqdm(list_pd_series):
+        with spacy_nlp.select_pipes(enable=['tokenizer']):
+            for pd_series in list_pd_series:
+                print(f"Extracting {pd_series} word vectors...")
                 compiled_vectors = []
-                for doc in pd_df[pd_series]:
+                for doc in tqdm(pd_df[pd_series]):
                     doc_vectors = []
+                    # finding word vectors
                     for token in spacy_nlp(doc):
                         if token.is_space or token.is_oov:
                             # preventing divide by zero error
@@ -85,37 +129,62 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
                             doc_vectors.append(word_vector)
                     compiled_vectors.append(doc_vectors)
                 # insert doc vectors in pandas df
-                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_vectors', value=compiled_vectors)
-            print('Word vectors loaded!')
+                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_w_vect', value=compiled_vectors)
+            print('\nWord vectors loaded!')
 
     if load_file:
+        print('Loading word vectors...')
         pd_df = load_from_csv(filepath, filename)
         print('Word vectors loaded!')
 
     return pd_df
 
 
-def doc_mean_vectors(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
+def subword_embedding(bpemb_en, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
         # remove pre-existing file
         if os.path.isfile(os.path.join(filepath, filename)):
             os.remove(os.path.join(filepath, filename))
-        with spacy_nlp.select_pipes(enable=['tokenizer', 'tok2vec']):
-            for pd_series in tqdm(list_pd_series):
-                print(f"Extracting {pd_series} mean vector...")
-                compiled_mean_vectors = []
-                for text in pd_df[pd_series]:
-                    doc = spacy_nlp(text)
-                    doc_vector = doc.vector
-                    if np.sum(doc.vector) == 0:
-                        # preventing divide by zero error
-                        doc_vector = null_array(300)
-                    else:
-                        # normalize vector to [0, 1]
-                        doc_vector = ((doc.vector / doc.vector_norm) + 1) / 2
-                    compiled_mean_vectors.append(doc_vector)
-                # insert compiled_mean_vectors in pandas df
-                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)
+        for pd_series in list_pd_series:
+            print(f"Extracting {pd_series} subword vectors...")
+            compiled_vectors = []
+            for doc in tqdm(pd_df[pd_series]):
+                # finding word vectors
+                token_ids = bpemb_en.encode_ids(doc)
+                doc_vectors = bpemb_en.emb.vectors[token_ids]
+                norm_vectors = []
+                for vector, token_id in zip(doc_vectors, token_ids):
+                    # normalize vector to [0, 1]
+                    token_vector = ((vector / np.linalg.norm(vector)) + 1) / 2
+                    # output format: [[token_1_id, vector1[]], [token_2_id, vector2[]], ...]
+                    norm_vectors.append([token_id, token_vector])
+                compiled_vectors.append(norm_vectors)
+            # insert doc vectors in pandas df
+            pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_sw_vect', value=compiled_vectors)
+        print('\nSubword vectors loaded!')
+
+    if load_file:
+        print('Loading subword vectors...')
+        pd_df = load_from_csv(filepath, filename)
+        print('Subword vectors loaded!')
+
+    return pd_df
+
+
+def doc_mean_vectors(bpemb_en, pd_df, list_pd_series, filepath, filename, load_file=False):
+    if not load_file:
+        # remove pre-existing file
+        if os.path.isfile(os.path.join(filepath, filename)):
+            os.remove(os.path.join(filepath, filename))
+        for pd_series in tqdm(list_pd_series):
+            print(f"Extracting {pd_series} mean vector...")
+            compiled_mean_vectors = []
+            for doc in pd_df[pd_series]:
+                doc_vectors = bpemb_en.embed(doc)
+                mean_vectors = sum(doc_vectors) / len(doc_vectors)
+                compiled_mean_vectors.append(mean_vectors)
+            # insert compiled_mean_vectors in pandas df
+            pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)
             print(f"{pd_series} mean vectors loaded!")
 
     if load_file:

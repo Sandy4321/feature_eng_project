@@ -2,7 +2,6 @@
 import os
 import re
 import pandas as pd
-from collections import OrderedDict
 from tqdm import tqdm
 # project modules
 from data_wrangling import load_from_csv
@@ -15,24 +14,6 @@ def sk_to_pd_df(sk_bunch, target_dict):
     pd_df.columns = ['text', 'target']
     pd_df["target"] = pd_df["target"].map(target_dict)
     return pd_df
-
-
-# process From section, replace all non-alphanumeric with space
-# currently known formats:
-# abc@a.b.c
-# abc@a.b.c (abc)
-# (abc)
-def extract_section_From(pd_df):
-    email_sender_rgx = re.compile(r'(?<=From: ).*')
-    non_alphanumeric_rgx = re.compile(r'[\W_]')
-    multiple_spaces_rgx = re.compile(r'  +')
-    # extract all text after 'From: ' and before newline
-    pd_df.insert(loc=len(pd_df.columns), column="From", value=pd_df["text"].apply(lambda text: email_sender_rgx.search(text).group()))
-    # match all non-alphanumeric characters and replace them with spaces
-    pd_df['From'] = pd_df['From'].str.replace(pat=non_alphanumeric_rgx, repl=' ')
-    # replace multiple spaces between words with only 1 space
-    pd_df['From'] = pd_df['From'].str.replace(pat=multiple_spaces_rgx, repl=' ')
-    return 0
 
 
 # process Subject section
@@ -50,7 +31,6 @@ def extract_section_Subject(pd_df):
         except AttributeError:  # no '(R/r)e: ' in subject
             subject_content_dict[doc] = doc
     pd_df['Subject'] = pd_df["Subject"].map(subject_content_dict)
-    print(len(subject_content_dict))
 
     return pd_df
 
@@ -78,6 +58,35 @@ def extract_section_pure_text(pd_df):
     return 0
 
 
+def extract_text_info(pd_df):
+    text_content_list = []
+    email_subject_rgx = re.compile(r'(?<=Subject: ).*')
+    subject_content_rgx = re.compile(r'(?<=[rR]e: ).*')
+    metadata_rgx_1 = re.compile(r'From:.*\nSubject: .*')
+    metadata_rgx_2 = re.compile(r'Subject: .*\nFrom: .*')
+    for doc in tqdm(pd_df['text']):
+        subject = email_subject_rgx.search(doc).group()
+        try:
+            subject_content = subject_content_rgx.search(subject).group()
+        except AttributeError:  # no '(R/r)e: ' in subject
+            subject_content = subject
+        try:
+            metadata = metadata_rgx_1.search(doc).group()
+        except AttributeError:
+            try:
+                metadata = metadata_rgx_2.search(doc).group()
+            except AttributeError:
+                print("AttributeError: Check df['text'], index= ")
+        try:
+            text_content = f"{subject_content} {doc.replace(metadata, '')}"
+            text_content_list.append(text_content)
+        except NameError as error:
+            print(error)
+    pd_df.insert(loc=len(pd_df.columns), column='text_data', value=text_content_list)
+
+    return 0
+
+
 def text_rmv_noise(spacy_nlp, pd_df, pd_series):
     # tokenize text
     with spacy_nlp.select_pipes(enable='tokenizer'):
@@ -92,30 +101,30 @@ def text_rmv_noise(spacy_nlp, pd_df, pd_series):
                     if not token.is_stop:
                         tokens_no_sw.append(token.lower_)
 
-            # removing duplicate tokens
-            tokens_no_dup = list(OrderedDict.fromkeys(tokens_no_sw))
             # converting from list to string
             separator = ' '
-            tokens_no_dup_string = separator.join(tokens_no_dup)
-            # blank line
-            if len(tokens_no_dup_string) == 0:
-                tokens_no_dup_string = ' '
-            pd_df.loc[:, pd_series].replace(to_replace=doc, value=tokens_no_dup_string, inplace=True)
+            tokens_no_sw_string = separator.join(tokens_no_sw)
+
+            if len(tokens_no_sw_string) == 0:
+                tokens_no_sw_string = ' '
+            pd_df.loc[:, pd_series].replace(to_replace=doc, value=tokens_no_sw_string, inplace=True)
 
     return 0
 
 
-def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, filepath, filename, load_file=False):
+def text_pre_processing(spacy_nlp, pd_df, filepath, filename, load_file=False):
     # generate new dataframe
     if not load_file:
+        print('Extracting pre-processed text...')
         # remove pre-existing dataframe
         if os.path.isfile(os.path.join(filepath, filename)):
             os.remove(os.path.join(filepath, filename))
-        extract_section_From(pd_df)
         extract_section_Subject(pd_df)
         extract_section_pure_text(pd_df)
-        text_rmv_noise(spacy_nlp, pd_df, pd_series_subject)
-        text_rmv_noise(spacy_nlp, pd_df, pd_series_text)
+        extract_text_info(pd_df)
+        text_rmv_noise(spacy_nlp, pd_df, 'Subject')
+        text_rmv_noise(spacy_nlp, pd_df, 'pure_text')
+        text_rmv_noise(spacy_nlp, pd_df, 'text_data')
         pd_df.drop(columns=['text'], inplace=True)
         # store pre-processed text into a separate file for later retrieval
         with open(os.path.join(filepath, filename), 'w') as storage_f:
@@ -125,6 +134,7 @@ def text_pre_processing(spacy_nlp, pd_df, pd_series_subject, pd_series_text, fil
 
     # load dataframe from memory
     if load_file:
+        print('Loading pre-processed text...')
         pd_df = load_from_csv(filepath, filename)
         print('Pre-processed text loaded!')
 
