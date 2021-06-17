@@ -11,7 +11,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 # project modules
 from vw_config import (
-    vw_opts,
     target_dict,
     raw_data_fpath,
     processed_data_fpath,
@@ -24,9 +23,10 @@ from vw_config import (
     pred_fpath,
     pred_filename
 )
-from data_wrangling import text_lemmatization, word_embedding, sentence_vectors, doc_mean_vectors
+from data_wrangling import text_lemmatization, word_embedding, doc_mean_vectors, remove_dup_words
 from data_pre_processing import sk_to_pd_df, text_pre_processing
 from convert_to_vw_format import pd_to_vw_fmt
+from evaluation_options import vw_opts, combinations_to_test, random_states
 
 
 def train_model(vw_model, filepath, filename):
@@ -62,7 +62,7 @@ def eval_model(vw_model, processed_data_fpath, filename, labels, pred_fpath, pre
         )
 
 
-def main():
+def main(random_state):
     #  loading in data
     newsgroups = load_files(raw_data_fpath, encoding='ANSI')
     df = sk_to_pd_df(newsgroups, target_dict)
@@ -71,32 +71,31 @@ def main():
 
     spacy_nlp = spacy.load('en_core_web_md')
     df = text_pre_processing(spacy_nlp, df, 'Subject', 'pure_text', processed_data_fpath, pre_processed_filename,
-                             load_file=True)
+                             load_file=False)
 
-    df = text_lemmatization(spacy_nlp, df, 'pure_text', processed_data_fpath, pure_text_lemmatized_filename,
+    df = text_lemmatization(spacy_nlp, df, ['pure_text', 'Subject'], processed_data_fpath, pure_text_lemmatized_filename,
+                            load_file=False)
+
+    df = remove_dup_words(spacy_nlp, df, ['pure_text'], processed_data_fpath, pure_text_lemmatized_filename,
                             load_file=False)
 
     df = doc_mean_vectors(spacy_nlp, df, ['Subject'], processed_data_fpath, doc_vectorized_filename,
                           load_file=False)
 
-    df = sentence_vectors(spacy_nlp, df, ['pure_text'])
-
-    # df = word_embedding(spacy_nlp, df, ['pure_text'], processed_data_fpath, words_vectorized_filename,
+    # df = word_embedding(spacy_nlp, df, ['text_content'], processed_data_fpath, words_vectorized_filename,
     #                    load_file=False)
 
     # store training data
-    data_train, data_test = train_test_split(df, test_size=0.25, random_state=1)
-    pd_to_vw_fmt(pd_df=data_train, spacy_nlp=spacy_nlp,
+    data_train, data_test = train_test_split(df, test_size=0.25, random_state=random_state)
+    pd_to_vw_fmt(pd_df=data_train,
                  text_sections_to_convert=[],
-                 word_vector_sections_to_convert=[],
-                 sent_vector_sections_to_convert=[('pure_text', 'pure_text_s_vect')],
+                 word_vector_sections_to_convert=[('pure_text_unique', 'pure_text_unique_w_vect')],
                  doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=train_filename, train=True)
     # store testing data
-    pd_to_vw_fmt(pd_df=data_test, spacy_nlp=spacy_nlp,
+    pd_to_vw_fmt(pd_df=data_test,
                  text_sections_to_convert=[],
-                 word_vector_sections_to_convert=[],
-                 sent_vector_sections_to_convert=[('pure_text', 'pure_text_s_vect')],
+                 word_vector_sections_to_convert=[('pure_text_unique', 'pure_text_unique_w_vect')],
                  doc_vector_sections_to_convert=['Subject_m_vect'],
                  filepath=processed_data_fpath, filename=test_filename, train=False)
 
@@ -120,4 +119,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    for random_state in random_states:
+        main(random_state)

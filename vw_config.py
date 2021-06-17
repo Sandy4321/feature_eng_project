@@ -13,25 +13,6 @@ test_filename = 'test_vectors_vw.txt'
 pred_fpath = os.path.join(proj_filepath, 'predictions')
 pred_filename = 'pred_vw.txt'
 
-# vw model options
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
-
 # for conversion to vw format for multiclass model
 target_dict = {
         0: 1,

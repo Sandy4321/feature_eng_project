@@ -1,3 +1,5 @@
+vw_opts only included if there is a change
+
 1st bag of words baseline:
 features:
 tokens that are
@@ -53,28 +55,6 @@ vw_opts = {
     # Other options
 }
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.474000 0.474000         1000         1000.0       10       10      281
-0.362500 0.251000         2000         2000.0       18       18      134
-0.302333 0.182000         3000         3000.0       11        8       25
-0.276250 0.198000         4000         4000.0       12       12      164
-0.249800 0.144000         5000         5000.0       10       10      196
-0.230833 0.136000         6000         6000.0        1        1       45
-0.217714 0.139000         7000         7000.0        2        2       48
-0.207375 0.135000         8000         8000.0       12       12       98
-0.197444 0.118000         9000         9000.0       14       14       75
-0.189200 0.115000        10000        10000.0        9        9       47
-0.179182 0.079000        11000        11000.0       13        4       14
-0.173000 0.105000        12000        12000.0        6        6       30
-0.167538 0.102000        13000        13000.0        7        2       94
-0.161071 0.077000        14000        14000.0       10       10      107
-0.160470 0.090909        15000        15000.0  unknown        5       93
-0.160470     n.a.        16000        16000.0  unknown       11       49
-0.160470     n.a.        17000        17000.0  unknown       10       65
-0.160470     n.a.        18000        18000.0  unknown        5       27
-
-
 Classification report:
               precision    recall  f1-score   support
 
@@ -120,44 +100,6 @@ features:
     pure_text section:
         1) same as Subject section
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
-
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.533000 0.533000         1000         1000.0       10       10    82506
-0.444000 0.355000         2000         2000.0       18       18    36609
-0.393000 0.291000         3000         3000.0       11       12     5406
-0.374250 0.318000         4000         4000.0       12       19    46806
-0.347200 0.239000         5000         5000.0       10       10    56707
-0.326667 0.224000         6000         6000.0        1        1    10808
-0.311714 0.222000         7000         7000.0        2        2    11107
-0.297875 0.201000         8000         8000.0       12       12    27306
-0.286222 0.193000         9000         9000.0       14       14    20407
-0.277700 0.201000        10000        10000.0        9        9    11408
-0.266000 0.149000        11000        11000.0       13       16     2107
-0.257417 0.163000        12000        12000.0        6        6     6307
-0.250231 0.164000        13000        13000.0        7        2    25507
-0.241714 0.131000        14000        14000.0       10       10    30006
-0.241272 0.190083        15000        15000.0  unknown        5    23709
-0.241272     n.a.        16000        16000.0  unknown       11    11109
-0.241272     n.a.        17000        17000.0  unknown       10    16807
-0.241272     n.a.        18000        18000.0  unknown        5     5708
 Classification report:
               precision    recall  f1-score   support
 
@@ -204,30 +146,12 @@ features:
     pure_text section:
         1) same as Subject section
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
 finished run
 number of examples = 18828
 weighted example sum = 18828.000000
 weighted label sum = 0.000000
 average loss = 0.241272
 total feature number = 648354653
-
 
 average  since         example        example  current  current  current
 loss     last          counter         weight    label  predict features
@@ -295,30 +219,6 @@ features:
         1) same as Subject section (1,2,3)
         2) doc.vector used as feature instead of token.lower
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
-finished run
-number of examples = 18828
-weighted example sum = 18828.000000
-weighted label sum = 0.000000
-average loss = 0.241272
-total feature number = 648354653
-
 finished run
 number of examples = 18828
 weighted example sum = 18828.000000
@@ -326,26 +226,6 @@ weighted label sum = 0.000000
 average loss = 0.380072
 total feature number = 11436653
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.686000 0.686000         1000         1000.0       10       10      312
-0.595500 0.505000         2000         2000.0       18       18      312
-0.540667 0.431000         3000         3000.0       11        4      311
-0.511250 0.423000         4000         4000.0       12       12      311
-0.487200 0.391000         5000         5000.0       10       10      311
-0.466667 0.364000         6000         6000.0        1        1      310
-0.448857 0.342000         7000         7000.0        2        2      310
-0.434000 0.330000         8000         8000.0       12       12      308
-0.421333 0.320000         9000         9000.0       14       14      312
-0.411100 0.319000        10000        10000.0        9        9      311
-0.398636 0.274000        11000        11000.0       13       10      311
-0.389000 0.283000        12000        12000.0        6        6      309
-0.382615 0.306000        13000        13000.0        7        9      308
-0.375214 0.279000        14000        14000.0       10       10      309
-0.374549 0.297521        15000        15000.0  unknown        5      313
-0.374549     n.a.        16000        16000.0  unknown       12      313
-0.374549     n.a.        17000        17000.0  unknown       13      311
-0.374549     n.a.        18000        18000.0  unknown        5      312
 Classification report:
               precision    recall  f1-score   support
 
@@ -377,7 +257,6 @@ weighted avg       0.73      0.71      0.71      4707
 Accuracy score:
 0.7148927129806671
 
-
 4th word vectors baseline:
 
 features:
@@ -391,25 +270,8 @@ features:
         4) doc.vector used as feature
 
     pure_text section:
-        1) same as Subject section (1,2,3), token.lower used as feature
+        1) same as Subject section (1,2,3), token.lemma_ used as feature
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
 finished run
 number of examples = 18828
 weighted example sum = 18828.000000
@@ -417,26 +279,6 @@ weighted label sum = 0.000000
 average loss = 0.374549
 total feature number = 5850357
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.559000 0.559000         1000         1000.0       10       10      575
-0.420000 0.281000         2000         2000.0       18       18      431
-0.347000 0.201000         3000         3000.0       11        4      320
-0.310000 0.199000         4000         4000.0       12       12      459
-0.277600 0.148000         5000         5000.0       10       10      492
-0.254167 0.137000         6000         6000.0        1        1      343
-0.237714 0.139000         7000         7000.0        2        2      345
-0.225250 0.138000         8000         8000.0       12       12      396
-0.214556 0.129000         9000         9000.0       14       14      370
-0.204100 0.110000        10000        10000.0        9        9      344
-0.193818 0.091000        11000        11000.0       13        7      310
-0.185500 0.094000        12000        12000.0        6        6      328
-0.178308 0.092000        13000        13000.0        7        7      393
-0.170857 0.074000        14000        14000.0       10       10      404
-0.170314 0.107438        15000        15000.0  unknown        5      389
-0.170314     n.a.        16000        16000.0  unknown       11      345
-0.170314     n.a.        17000        17000.0  unknown       10      361
-0.170314     n.a.        18000        18000.0  unknown        2      323
 Classification report:
               precision    recall  f1-score   support
 
@@ -484,23 +326,6 @@ features:
         1) same as Subject section (1,2,3)
         2) token.vector used as features
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
 finished run
 number of examples = 18828
 weighted example sum = 18828.000000
@@ -508,26 +333,6 @@ weighted label sum = 0.000000
 average loss = 0.170314
 total feature number = 7952147
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.570000 0.570000         1000         1000.0       10       10    81006
-0.474500 0.379000         2000         2000.0       18       18    36009
-0.431333 0.345000         3000         3000.0       11       19     4206
-0.408500 0.340000         4000         4000.0       12       19    45606
-0.382200 0.277000         5000         5000.0       10       10    55807
-0.363167 0.268000         6000         6000.0        1        1    10508
-0.347000 0.250000         7000         7000.0        2        2    10507
-0.332875 0.234000         8000         8000.0       12       12    27006
-0.320556 0.222000         9000         9000.0       14       14    19207
-0.310400 0.219000        10000        10000.0        9        9    10808
-0.298364 0.178000        11000        11000.0       13        8     1207
-0.288917 0.185000        12000        12000.0        6        6     6007
-0.282077 0.200000        13000        13000.0        7        2    25507
-0.275071 0.184000        14000        14000.0       10       10    29406
-0.274343 0.190083        15000        15000.0  unknown        5    23109
-0.274343     n.a.        16000        16000.0  unknown       11    10509
-0.274343     n.a.        17000        17000.0  unknown       10    15907
-0.274343     n.a.        18000        18000.0  unknown        5     4808
 Classification report:
               precision    recall  f1-score   support
 
@@ -559,14 +364,6 @@ weighted avg       0.82      0.82      0.82      4707
 Accuracy score:
 0.8196303377947738
 
-finished run
-number of examples = 18828
-weighted example sum = 18828.000000
-weighted label sum = 0.000000
-average loss = 0.274343
-total feature number = 636009653
-
-
 6th word vectors baseline:
 
 features:
@@ -583,44 +380,6 @@ features:
         1) same as Subject section (1,2,3)
         2) token.lower used as features
 
-vw_opts = {
-    # General options
-    "random_seed": 1,
-    # Input options
-    # Output options
-    "progress": 1000,
-    # Example Manipulation options
-    # Update rule options
-    "loss_function": "logistic",
-    # Weight options
-    "bit_precision": 28,
-    # Holdout options
-    # Feature namespace options
-    # Multiclass options
-    "oaa": 20
-    # Other options
-}
-
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.526000 0.526000         1000         1000.0       10       10     2075
-0.445500 0.365000         2000         2000.0       18       18     1031
-0.386667 0.269000         3000         3000.0       11       11     1520
-0.357000 0.268000         4000         4000.0       12       12     1659
-0.328800 0.216000         5000         5000.0       10       10     1392
-0.313000 0.234000         6000         6000.0        1        1      643
-0.297286 0.203000         7000         7000.0        2        2      945
-0.284000 0.191000         8000         8000.0       12       12      696
-0.272444 0.180000         9000         9000.0       14       10     1570
-0.261500 0.163000        10000        10000.0        9        9      944
-0.251091 0.147000        11000        11000.0       13        4     1210
-0.242667 0.150000        12000        12000.0        6        6      628
-0.236308 0.160000        13000        13000.0        7        7      393
-0.229071 0.135000        14000        14000.0       10       10     1004
-0.228312 0.140496        15000        15000.0  unknown        5      989
-0.228312     n.a.        16000        16000.0  unknown       11      945
-0.228312     n.a.        17000        17000.0  unknown       14     1261
-0.228312     n.a.        18000        18000.0  unknown        5     1223
 Classification report:
               precision    recall  f1-score   support
 
@@ -665,26 +424,6 @@ features:
 1) 'From' section dropped
 2) Word vectors normalised to [-1, 1]
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.573000 0.573000         1000         1000.0       10       10    48901
-0.470500 0.368000         2000         2000.0       18       18    28801
-0.412333 0.296000         3000         3000.0       11        8     5401
-0.382750 0.294000         4000         4000.0       12       12    37801
-0.350200 0.220000         5000         5000.0       10       10    30001
-0.325000 0.199000         6000         6000.0        1        1     9601
-0.307714 0.204000         7000         7000.0        2        2     9301
-0.294375 0.201000         8000         8000.0       12       12    23701
-0.283222 0.194000         9000         9000.0       14       14    17101
-0.273200 0.183000        10000        10000.0        9        9    10501
-0.259545 0.123000        11000        11000.0       13       16     2101
-0.250917 0.156000        12000        12000.0        6        6     6301
-0.242846 0.146000        13000        13000.0        7        7    16201
-0.234714 0.129000        14000        14000.0       10       10    24901
-0.233978 0.148760        15000        15000.0  unknown        5    20701
-0.233978     n.a.        16000        16000.0  unknown       11    11101
-0.233978     n.a.        17000        17000.0  unknown       10    15301
-0.233978     n.a.        18000        18000.0  unknown        5     5701
 Classification report:
               precision    recall  f1-score   support
 
@@ -729,26 +468,6 @@ features:
 1) Subj doc vectors taken and normalised to [0, 1]
 1) pure_text word vectors normalised to [0, 1]
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.513000 0.513000         1000         1000.0       10       10    47406
-0.398500 0.284000         2000         2000.0       18       18    28209
-0.339000 0.220000         3000         3000.0       11       19     4206
-0.316750 0.250000         4000         4000.0       12       19    36606
-0.289600 0.181000         5000         5000.0       10       10    29107
-0.269333 0.168000         6000         6000.0        1        1     9308
-0.256857 0.182000         7000         7000.0        2        2     8707
-0.245750 0.168000         8000         8000.0       12       12    23406
-0.235222 0.151000         9000         9000.0       14       14    15907
-0.225400 0.137000        10000        10000.0        9        9     9908
-0.215545 0.117000        11000        11000.0       13       11     1207
-0.208333 0.129000        12000        12000.0        6        6     6007
-0.201154 0.115000        13000        13000.0        7        7    16207
-0.194786 0.112000        14000        14000.0       10       10    24306
-0.193966 0.099174        15000        15000.0  unknown        5    20109
-0.193966     n.a.        16000        16000.0  unknown       11    10509
-0.193966     n.a.        17000        17000.0  unknown       10    14407
-0.193966     n.a.        18000        18000.0  unknown       13     4808
 Classification report:
               precision    recall  f1-score   support
 
@@ -792,26 +511,6 @@ total feature number = 446198753
 Features:
 1) Dropped 'From' section
 
-average  since         example        example  current  current  current
-loss     last          counter         weight    label  predict features
-0.513000 0.513000         1000         1000.0       10       10    47401
-0.398500 0.284000         2000         2000.0       18       18    28201
-0.339333 0.221000         3000         3000.0       11       19     4201
-0.317000 0.250000         4000         4000.0       12       19    36601
-0.290200 0.183000         5000         5000.0       10       10    29101
-0.269833 0.168000         6000         6000.0        1        1     9301
-0.257286 0.182000         7000         7000.0        2        2     8701
-0.246125 0.168000         8000         8000.0       12       12    23401
-0.235556 0.151000         9000         9000.0       14       14    15901
-0.225700 0.137000        10000        10000.0        9        9     9901
-0.215909 0.118000        11000        11000.0       13       11     1201
-0.208750 0.130000        12000        12000.0        6        6     6001
-0.201538 0.115000        13000        13000.0        7        7    16201
-0.195286 0.114000        14000        14000.0       10       10    24301
-0.194462 0.099174        15000        15000.0  unknown        5    20101
-0.194462     n.a.        16000        16000.0  unknown       11    10501
-0.194462     n.a.        17000        17000.0  unknown       10    14401
-0.194462     n.a.        18000        18000.0  unknown       13     4801
 Classification report:
               precision    recall  f1-score   support
 
@@ -892,3 +591,38 @@ weighted example sum = 18828.000000
 weighted label sum = 0.000000
 average loss = 0.502160
 total feature number = 129365328
+
+4th word vectors v2 baseline:
+Features:
+1) Combined subject and pure_text as one section
+
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.85      0.86      0.85       209
+           2       0.84      0.83      0.83       253
+           3       0.80      0.85      0.83       250
+           4       0.83      0.75      0.79       238
+           5       0.90      0.85      0.88       233
+           6       0.90      0.91      0.90       237
+           7       0.83      0.90      0.86       245
+           8       0.92      0.93      0.92       241
+           9       0.96      0.94      0.95       244
+          10       0.98      0.98      0.98       247
+          11       0.99      0.98      0.98       246
+          12       0.97      0.91      0.94       240
+          13       0.86      0.88      0.87       223
+          14       0.93      0.94      0.94       248
+          15       0.95      0.95      0.95       258
+          16       0.89      0.92      0.91       250
+          17       0.95      0.93      0.94       224
+          18       0.96      0.93      0.95       255
+          19       0.88      0.88      0.88       200
+          20       0.73      0.83      0.78       166
+
+    accuracy                           0.90      4707
+   macro avg       0.90      0.90      0.90      4707
+weighted avg       0.90      0.90      0.90      4707
+
+Accuracy score:
+0.8988740174208626
