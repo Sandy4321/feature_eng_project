@@ -8,7 +8,7 @@ pre_processed_filename = 'pre_processed_text'
 dups_removed_filename = 'no_dup_words'
 pure_text_lemmatized_filename = 'pure_text_lemmatized'
 words_vectorized_filename = 'data_word_vectors'
-doc_vectorized_filename = 'data_mean_vectors'
+doc_vectorized_filename = 'data_doc_vectors'
 
 train_filename = 'train_vectors_vw.txt'
 test_filename = 'test_vectors_vw.txt'

@@ -4,7 +4,7 @@ import re
 import pandas as pd
 from tqdm import tqdm
 # project modules
-from data_wrangling import load_from_csv
+from data_wrangling import load_from_pickle
 
 
 def sk_to_pd_df(sk_bunch, target_dict):
@@ -126,16 +126,17 @@ def text_pre_processing(spacy_nlp, pd_df, filepath, filename, load_file=False):
         text_rmv_noise(spacy_nlp, pd_df, 'pure_text')
         text_rmv_noise(spacy_nlp, pd_df, 'text_data')
         pd_df.drop(columns=['text'], inplace=True)
+
         # store pre-processed text into a separate file for later retrieval
-        with open(os.path.join(filepath, filename), 'w') as storage_f:
-            pd_df.to_csv(path_or_buf=storage_f, index=False)
-            print('Pre-processed text stored!')
-            print('Pre-processed text loaded!')
+        storage_f = os.path.join(filepath, filename)
+        pd_df.to_pickle(path=storage_f)
+        print('Pre-processed text stored!')
+        print('Pre-processed text loaded!')
 
     # load dataframe from memory
     if load_file:
         print('Loading pre-processed text...')
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Pre-processed text loaded!')
 
     return pd_df
