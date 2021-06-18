@@ -32,10 +32,27 @@ from convert_to_vw_format import pd_to_vw_fmt
 from evaluation_options import vw_opts, combinations_to_test
 
 
-def train_model(vw_model, filepath, filename):
-    with open(os.path.join(filepath, filename), "r") as train_f:
-        for example in train_f:
-            vw_model.learn(example)
+# WIP to work with new data format, combine individual data in VW format from each .txt file
+# note: " |text_data_lem" <- whitespace char present at front of this
+#       "|Subject_unq_sw_vect_d0" <- whitespace char absent at front of this, need to rerun code to fix :/
+def train_model(vw_model, filepath, features):
+    filenames_list = []
+    features_list = []
+    for feature in features:
+        filenames_list.append(f"{feature}_train.txt")
+    with open(os.path.join(filepath, 'train_data_labels.txt'), 'r') as label_file:
+        labels = label_file.readlines()
+    for filename in filenames_list:
+        with open(os.path.join(filepath, filename[0]), 'r') as feature_file:
+            features_list.append(feature_file.readlines())
+    data_index = 0
+    for label in labels:
+        vw_str = f"{label}"
+        for features in features_list:
+            vw_str += f"{features[data_index]}"
+        data_index += 1
+        vw_model.learn(vw_str)
+
     return 0
 
 

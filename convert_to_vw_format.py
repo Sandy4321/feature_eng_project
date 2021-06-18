@@ -33,7 +33,7 @@ def subword_vectors_to_vw_fmt(pd_series, data):
 
     # convert to str
     vw_seperator = " "
-    vw_str = vw_seperator.join(section_vw)
+    vw_str = f" {vw_seperator.join(section_vw)}"
 
     return vw_str
 
