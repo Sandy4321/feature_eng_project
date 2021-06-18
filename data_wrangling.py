@@ -33,6 +33,17 @@ def load_from_csv(filepath, filename):
         return -1
 
 
+def load_from_pickle(filepath, filename):
+    pickle_filepath = os.path.join(filepath, filename)
+    if os.path.isfile(pickle_filepath):
+        pd_df = pd.read_pickle(pickle_filepath)
+        return pd_df
+
+    else:
+        print('No pre-existing file found')
+        return -1
+
+
 def remove_dup_words(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
         # remove pre-existing file
@@ -56,15 +67,17 @@ def remove_dup_words(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_
                         doc_unique_str = f" "
                     unique_str_list.append(doc_unique_str)
                 pd_df.insert(loc=len(pd_df.columns), column=pd_series + '_unq', value=unique_str_list)
-        with open(os.path.join(filepath, filename), 'w') as storage_f:
-            pd_df.to_csv(path_or_buf=storage_f, index=False)
-            print('Unique words stored!')
-            print('Unique words stored!')
+
+        # store unique words for later retrieval
+        storage_f = os.path.join(filepath, filename)
+        pd_df.to_pickle(path=storage_f)
+        print('Unique words stored!')
+        print('Unique words stored!')
 
     # load dataframe from memory
     if load_file:
         print('Loading unique words...')
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Unique words loaded!')
     return pd_df
 
@@ -88,14 +101,14 @@ def text_lemmatization(spacy_nlp, pd_df, list_pd_series, filepath, filename, loa
                 pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_lem', value=compiled_lemmas)
 
         # store lemmatized text into a separate file for later retrieval
-        with open(os.path.join(filepath, filename), 'w') as storage_f:
-            pd_df.to_csv(path_or_buf=storage_f, index=False)
-            print('Lemmatized text stored!')
-            print('Lemmatized text loaded!')
+        storage_f = os.path.join(filepath, filename)
+        pd_df.to_pickle(path=storage_f)
+        print('Lemmatized text stored!')
+        print('Lemmatized text loaded!')
 
     if load_file:
         print('Loading lemmatized text...')
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Lemmatized text loaded!')
 
     return pd_df
@@ -134,7 +147,7 @@ def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_fi
 
     if load_file:
         print('Loading word vectors...')
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Word vectors loaded!')
 
     return pd_df
@@ -161,11 +174,14 @@ def subword_embedding(bpemb_en, pd_df, list_pd_series, filepath, filename, load_
                 compiled_vectors.append(norm_vectors)
             # insert doc vectors in pandas df
             pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_sw_vect', value=compiled_vectors)
+        # store subword_vectors into a separate file for later retrieval
+        storage_f = os.path.join(filepath, filename)
+        pd_df.to_pickle(path=storage_f)
         print('\nSubword vectors loaded!')
 
     if load_file:
         print('Loading subword vectors...')
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Subword vectors loaded!')
 
     return pd_df
@@ -186,9 +202,11 @@ def doc_mean_vectors(bpemb_en, pd_df, list_pd_series, filepath, filename, load_f
             # insert compiled_mean_vectors in pandas df
             pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)
             print(f"{pd_series} mean vectors loaded!")
-
+        # store doc_mean_vectors into a separate file for later retrieval
+        storage_f = os.path.join(filepath, filename)
+        pd_df.to_pickle(path=storage_f)
     if load_file:
-        pd_df = load_from_csv(filepath, filename)
+        pd_df = load_from_pickle(filepath, filename)
         print('Mean vectors loaded!')
 
     return pd_df
