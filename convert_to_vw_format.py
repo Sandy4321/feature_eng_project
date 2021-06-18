@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 
 def text_to_vw_fmt(pd_series, data):
-    vw_str = f" |{pd_series} {data[pd_series]}"
+    vw_str = f"|{pd_series} {data[pd_series]}"
     return vw_str
 
 
@@ -33,7 +33,7 @@ def subword_vectors_to_vw_fmt(pd_series, data):
 
     # convert to str
     vw_seperator = " "
-    vw_str = f" {vw_seperator.join(section_vw)}"
+    vw_str = vw_seperator.join(section_vw)
 
     return vw_str
 
@@ -41,7 +41,7 @@ def subword_vectors_to_vw_fmt(pd_series, data):
 # goal: 1 |subj_d1 d1, |subj_d2 d2, ... |text_d1 d1, |text_d2 d2, ...
 def doc_vectors_to_vw_fmt(pd_series, data):
     vector_index = 1
-    vw_str = f" |{pd_series}"
+    vw_str = f"|{pd_series}"
     for dim in data[pd_series]:
         vw_str += f" d{vector_index}:{dim}"
         vector_index += 1

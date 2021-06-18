@@ -33,8 +33,8 @@ from evaluation_options import vw_opts, combinations_to_test
 
 
 # WIP to work with new data format, combine individual data in VW format from each .txt file
-# note: " |text_data_lem" <- whitespace char present at front of this
-#       "|Subject_unq_sw_vect_d0" <- whitespace char absent at front of this, need to rerun code to fix :/
+# note: " |text_data_lem" <- whitespace char present at front of this, need to rerun code to fix :/
+#       "|Subject_unq_sw_vect_d0" <- whitespace char absent at front of this
 def train_model(vw_model, filepath, features):
     filenames_list = []
     features_list = []
@@ -49,7 +49,7 @@ def train_model(vw_model, filepath, features):
     for label in labels:
         vw_str = f"{label}"
         for features in features_list:
-            vw_str += f"{features[data_index]}"
+            vw_str += f" {features[data_index]}"
         data_index += 1
         vw_model.learn(vw_str)
 
