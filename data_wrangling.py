@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from collections import OrderedDict
-# project modules
 
 
 # used for baseline bag_of_words model

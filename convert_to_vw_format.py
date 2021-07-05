@@ -79,7 +79,7 @@ def pd_to_vw_fmt(pd_df,
                  doc_vector_sections_to_convert, subword_vector_sections_to_convert,
                  filepath, train):
 
-    print('Çonverting to vw format...')
+    print('Converting to vw format...')
     # storing labels, change to iterate with loop below instead
     if train:
         label_filename = 'train_data_labels.txt'
