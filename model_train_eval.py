@@ -1,5 +1,6 @@
 import os
 import re
+import gc
 import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
@@ -34,19 +35,17 @@ def to_vw(processed_data_fpath, features, train):
     return vw_str_list
 
 
-def train_model(vw_model, train_vw_str_list):
-    for train_vw_str in train_vw_str_list:
+def train_model(vw_model, train_str_list):
+    for train_vw_str in train_str_list:
         vw_model.learn(train_vw_str)
 
     return 0
 
 
-def eval_model(vw_model, test_vw_str_list, features,
-               processed_data_fpath, pred_fpath, pred_filename,
-               random_state, run=1):
+def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpath, pred_filename, random_state, run=1):
     predictions = []
-    for test_vw_str in test_vw_str_list:
-        predictions.append(vw_model.predict(test_vw_str))
+    for sample in test_str_list:
+        predictions.append(vw_model.predict(sample))
     with open(os.path.join(processed_data_fpath, 'test_data_labels.txt')) as label_file:
         labels = label_file.readlines()
         labels = list(map(int, labels))

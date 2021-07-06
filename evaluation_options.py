@@ -14,7 +14,6 @@
 # 2) subword_vectors - remove_dup -> subword_embedding
 # 3) doc_vectors - remove_dup -> doc_mean_vectors
 
-
 combinations_to_test = [
     # only pure_text
     ['pure_text_lem'],  # pure BOW
@@ -29,14 +28,13 @@ combinations_to_test = [
     # text_data and Subject
     ['pure_text_lem', 'Subject_lem'],  # pure BOW
     ['pure_text_unq_sw_vect', 'Subject_unq_sw_vect'],  # pure subword_vectors
-    ['pure_text_unq_sw_vect', 'Subject_unq_m_vect'],  # subword_vectors and doc_vectors,
     ['pure_text_lem', 'Subject_lem', 'pure_text_unq_sw_vect', 'Subject_unq_sw_vect'],  # BOW and subword_vectors
+    ['pure_text_unq_sw_vect', 'Subject_unq_m_vect'],  # subword_vectors and doc_vectors
     ['pure_text_lem', 'Subject_lem', 'pure_text_unq_sw_vect', 'Subject_unq_m_vect']  # BOW, subword_vectors and doc_vectors
 ]
 
-
 # vw model options
-random_state_list = [7]
+random_state_list = [7, 11, 54]
 vw_opts_list = []
 for random_state in random_state_list:
     vw_opts_list.append(

@@ -1,4 +1,6 @@
 # NLP modules
+import gc
+
 import spacy
 # ML modules
 from vowpalwabbit import pyvw
@@ -101,27 +103,29 @@ def main(process_data, train_test_model, run=1):
     # save features and accuracy score together in a .txt file
     if train_test_model:
         for features in combinations_to_test:
-            # combine each feature's data together into vw format
-            train_vw_str_list = to_vw(processed_data_fpath, features, train=True)
-            test_vw_str_list = to_vw(processed_data_fpath, features, train=False)
-
+            train_str_list = to_vw(processed_data_fpath, features, train=True)
+            test_str_list = to_vw(processed_data_fpath, features, train=False)
             for vw_opts in vw_opts_list:
+                # changing random_seed does not appear to change the vw_model predictions, keeping it temporarily
                 random_state = vw_opts["random_seed"]
                 # generate vw_model with corresponding params
                 vw_model = pyvw.vw(**vw_opts)
 
                 # train vw_model
-                train_model(vw_model, train_vw_str_list)
+                train_model(vw_model, train_str_list)
 
                 # evaluate vw_model against test set
-                eval_model(vw_model, test_vw_str_list, features,
-                           processed_data_fpath, pred_fpath, pred_filename,
+                eval_model(vw_model, test_str_list, processed_data_fpath,
+                           features, pred_fpath, pred_filename,
                            random_state, run=run)
-
+            # to prevent MemoryError
+            del train_str_list
+            del test_str_list
+            gc.collect()
             run += 1
 
     return 0
 
 
 if __name__ == "__main__":
-    main(process_data=False, train_test_model=True, run=11)
+    main(process_data=False, train_test_model=True, run=1)
