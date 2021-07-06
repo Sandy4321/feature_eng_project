@@ -11,7 +11,7 @@ data_pre_processing:
 data_wrangling:
 - Lemmatizes using spacy
 - Remove duplicate words using spacy
-- Find doc vectors using bpemb_en
+- Find doc_vectors using bpemb_en
 - Find subword_vect using bpemb_en
 
 model_train_eval:
@@ -21,6 +21,12 @@ model_train_eval:
 evaluation_options:
 - Stores which features to use for vw_model training/evaluation
 - Stores vw_model config
+
+Dependencies downloaded seperately:
+- bpemb_en model (https://bpemb.h-its.org/en/en.wiki.bpe.vs200000.model)
+- bpemb_en vocab (https://bpemb.h-its.org/en/en.wiki.bpe.vs200000.d300.w2v.bin.tar.gz)
+- save bpemb_en model and vocab in \project_working_directory\bpemb_model
+- spacy (python -m spacy download en_core_web_md)
 
 Removed:
 
