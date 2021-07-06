@@ -1,4 +1,3 @@
-# general python module
 # NLP modules
 import spacy
 # ML modules
@@ -24,10 +23,10 @@ from data_wrangling import text_lemmatization, doc_mean_vectors, remove_dup_word
 from data_pre_processing import sk_to_pd_df, text_pre_processing
 from convert_to_vw_format import pd_to_vw_fmt
 from evaluation_options import vw_opts_list, combinations_to_test
-from model_train_eval import train_model, eval_model
+from model_train_eval import to_vw, train_model, eval_model
 
 
-def main(process_data, train_test_model):
+def main(process_data, train_test_model, run=1):
     # process data for training and testing of vw_model
     if process_data:
         #  loading in data
@@ -41,14 +40,14 @@ def main(process_data, train_test_model):
 
         # base pd_df sections: target | Subject | pure_text | text_data
         df = text_pre_processing(spacy_nlp, df, processed_data_fpath, pre_processed_filename,
-                                 load_file=False)
+                                 load_file=True)
 
         # for BOW features
         # current pd_df sections: target | Subject | pure_text | text_data
         #                                | Subject_lem | pure_text_lem | text_data_lem
         df = text_lemmatization(spacy_nlp, df, ['Subject', 'pure_text', 'text_data'],
                                 processed_data_fpath, pure_text_lemmatized_filename,
-                                load_file=False)
+                                load_file=True)
 
         # creates new pd_series with key f"{pd_series}_unq"
         # for subword_vectors
@@ -56,15 +55,15 @@ def main(process_data, train_test_model):
         #                                | Subject_lem | pure_text_lem | text_data_lem
         #                                | Subject_unq | pure_text_unq | text_data_unq
         df = remove_dup_words(spacy_nlp, df, ['Subject', 'pure_text', 'text_data'],
-                              processed_data_fpath, dups_removed_filename, load_file=False)
+                              processed_data_fpath, dups_removed_filename, load_file=True)
 
         # creates new pd_series with key f"{pd_series}_m_vect"
         # current pd_df sections: target | Subject | pure_text | text_data
         #                                | Subject_lem | pure_text_lem | text_data_lem
         #                                | Subject_unq | pure_text_unq | text_data_unq
         #                                | Subject_unq_m_vect
-        # df = doc_mean_vectors(spacy_nlp, df, ['Subject_unq'], processed_data_fpath, doc_vectorized_filename,
-        #                      load_file=False)
+        df = doc_mean_vectors(bpemb_en, df, ['Subject_unq'], processed_data_fpath, doc_vectorized_filename,
+                              load_file=True)
 
         # creates new pd_series with key f"{pd_series}_sw_vect"
         # current pd_df sections: target | Subject | pure_text | text_data
@@ -81,7 +80,7 @@ def main(process_data, train_test_model):
                      text_sections_to_convert=['Subject_lem',
                                                'pure_text_lem',
                                                'text_data_lem'],
-                     doc_vector_sections_to_convert=[],
+                     doc_vector_sections_to_convert=['Subject_unq_m_vect'],
                      subword_vector_sections_to_convert=['Subject_unq_sw_vect',
                                                          'pure_text_unq_sw_vect',
                                                          'text_data_unq_sw_vect'],
@@ -91,7 +90,7 @@ def main(process_data, train_test_model):
                      text_sections_to_convert=['Subject_lem',
                                                'pure_text_lem',
                                                'text_data_lem'],
-                     doc_vector_sections_to_convert=[],
+                     doc_vector_sections_to_convert=['Subject_unq_m_vect'],
                      subword_vector_sections_to_convert=['Subject_unq_sw_vect',
                                                          'pure_text_unq_sw_vect',
                                                          'text_data_unq_sw_vect'],
@@ -101,22 +100,28 @@ def main(process_data, train_test_model):
     # save classification report as .csv file
     # save features and accuracy score together in a .txt file
     if train_test_model:
-        run = 1
         for features in combinations_to_test:
+            # combine each feature's data together into vw format
+            train_vw_str_list = to_vw(processed_data_fpath, features, train=True)
+            test_vw_str_list = to_vw(processed_data_fpath, features, train=False)
+
             for vw_opts in vw_opts_list:
                 random_state = vw_opts["random_seed"]
                 # generate vw_model with corresponding params
                 vw_model = pyvw.vw(**vw_opts)
 
                 # train vw_model
-                train_model(vw_model, processed_data_fpath, features)
+                train_model(vw_model, train_vw_str_list)
 
                 # evaluate vw_model against test set
-                eval_model(vw_model, processed_data_fpath, features, pred_fpath, pred_filename, random_state, run=run)
+                eval_model(vw_model, test_vw_str_list, features,
+                           processed_data_fpath, pred_fpath, pred_filename,
+                           random_state, run=run)
+
             run += 1
 
     return 0
 
 
 if __name__ == "__main__":
-    main(process_data=False, train_test_model=True)
+    main(process_data=False, train_test_model=True, run=11)

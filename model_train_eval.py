@@ -34,19 +34,19 @@ def to_vw(processed_data_fpath, features, train):
     return vw_str_list
 
 
-def train_model(vw_model, processed_data_fpath, features):
-    vw_str_list = to_vw(processed_data_fpath, features, train=True)
-    for vw_str in vw_str_list:
-        vw_model.learn(vw_str)
+def train_model(vw_model, train_vw_str_list):
+    for train_vw_str in train_vw_str_list:
+        vw_model.learn(train_vw_str)
 
     return 0
 
 
-def eval_model(vw_model, processed_data_fpath, features, pred_fpath, pred_filename, random_state, run=1):
-    vw_str_list = to_vw(processed_data_fpath, features, train=False)
+def eval_model(vw_model, test_vw_str_list, features,
+               processed_data_fpath, pred_fpath, pred_filename,
+               random_state, run=1):
     predictions = []
-    for sample in vw_str_list:
-        predictions.append(vw_model.predict(sample))
+    for test_vw_str in test_vw_str_list:
+        predictions.append(vw_model.predict(test_vw_str))
     with open(os.path.join(processed_data_fpath, 'test_data_labels.txt')) as label_file:
         labels = label_file.readlines()
         labels = list(map(int, labels))

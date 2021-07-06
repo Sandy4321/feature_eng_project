@@ -1,35 +1,9 @@
 # general python modules
 import os
-import re
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from collections import OrderedDict
-
-
-# used for baseline bag_of_words model
-def bag_of_words(document, label=None):
-    return (
-        str(label or "")
-        + " |text "
-        + " ".join(re.findall("\w{3,}", document.lower()))
-        + "\n"
-    )
-
-
-def load_from_csv(filepath, filename):
-    if os.path.isfile(os.path.join(filepath, filename)):
-        temp_storage_list = []
-        with open(os.path.join(filepath, filename), 'r') as storage_f:
-            # loading in by chunks because of C error: out of memory due to large file size
-            for chunk in pd.read_csv(storage_f, sep=',', chunksize=20000):
-                temp_storage_list.append(chunk)
-            pd_df = pd.concat(temp_storage_list, axis=0)
-            del temp_storage_list
-            return pd_df
-    else:
-        print('No pre-existing file found')
-        return -1
 
 
 def load_from_pickle(filepath, filename):
@@ -119,39 +93,6 @@ def null_array(n):
     return null_arr
 
 
-def word_embedding(spacy_nlp, pd_df, list_pd_series, filepath, filename, load_file=False):
-    if not load_file:
-        # remove pre-existing file
-        if os.path.isfile(os.path.join(filepath, filename)):
-            os.remove(os.path.join(filepath, filename))
-        with spacy_nlp.select_pipes(enable=['tokenizer']):
-            for pd_series in list_pd_series:
-                print(f"Extracting {pd_series} word vectors...")
-                compiled_vectors = []
-                for doc in tqdm(pd_df[pd_series]):
-                    doc_vectors = []
-                    # finding word vectors
-                    for token in spacy_nlp(doc):
-                        if token.is_space or token.is_oov:
-                            # preventing divide by zero error
-                            doc_vectors.append(null_array(300))
-                        else:
-                            # normalize vector to [0, 1]
-                            word_vector = ((token.vector / token.vector_norm) + 1) / 2
-                            doc_vectors.append(word_vector)
-                    compiled_vectors.append(doc_vectors)
-                # insert doc vectors in pandas df
-                pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_w_vect', value=compiled_vectors)
-            print('\nWord vectors loaded!')
-
-    if load_file:
-        print('Loading word vectors...')
-        pd_df = load_from_pickle(filepath, filename)
-        print('Word vectors loaded!')
-
-    return pd_df
-
-
 def subword_embedding(bpemb_en, pd_df, list_pd_series, filepath, filename, load_file=False):
     if not load_file:
         # remove pre-existing file
@@ -196,7 +137,10 @@ def doc_mean_vectors(bpemb_en, pd_df, list_pd_series, filepath, filename, load_f
             compiled_mean_vectors = []
             for doc in pd_df[pd_series]:
                 doc_vectors = bpemb_en.embed(doc)
-                mean_vectors = sum(doc_vectors) / len(doc_vectors)
+                try:
+                    mean_vectors = sum(doc_vectors) / len(doc_vectors)
+                except ZeroDivisionError:
+                    mean_vectors = null_array(300)
                 compiled_mean_vectors.append(mean_vectors)
             # insert compiled_mean_vectors in pandas df
             pd_df.insert(loc=len(pd_df.columns), column=pd_series+'_m_vect', value=compiled_mean_vectors)
