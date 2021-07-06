@@ -69,7 +69,7 @@ data_wrangling:
 - extract doc.vector
 
 convert_to_vw_format:
-Converts text, word.vectors and doc.vectors into vw format for modelling
+- Converts text, word.vectors and doc.vectors into vw format for modelling
 
 vw_config:
 - project constants
