@@ -10,10 +10,8 @@ pure_text_lemmatized_filename = 'pure_text_lemmatized'
 words_vectorized_filename = 'data_word_vectors'
 doc_vectorized_filename = 'data_doc_vectors'
 
-train_filename = 'train_vectors_vw.txt'
-test_filename = 'test_vectors_vw.txt'
 pred_fpath = os.path.join(proj_filepath, 'predictions')
-pred_filename = 'pred_vw.txt'
+pred_filename = 'pred_vw'
 
 # for conversion to vw format for multiclass model
 target_dict = {

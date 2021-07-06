@@ -76,7 +76,7 @@ def extract_text_info(pd_df):
             try:
                 metadata = metadata_rgx_2.search(doc).group()
             except AttributeError:
-                print("AttributeError: Check df['text'], index= ")
+                print("AttributeError: Check df['text']")
         try:
             text_content = f"{subject_content} {doc.replace(metadata, '')}"
             text_content_list.append(text_content)
