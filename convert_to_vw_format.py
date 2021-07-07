@@ -2,14 +2,14 @@ import os
 from tqdm import tqdm
 
 
+# output format: |pd_series word1 word2 ...
 def text_to_vw_fmt(pd_series, data):
     vw_str = f"|{pd_series} {data[pd_series]}"
     return vw_str
 
 
 # incoming format: [[token_1_id, vector1[]], [token_2_id, vector2[]], ...]
-# output format: ['|subj_d0', 'subj_word_1:d0', 'subj_word_n:d0' , '|subj_d1', 'subj_word_1:d1', ...,
-#                 '|text_d1', 'text_word_1_d1', ...]
+# output format: ['|subj_d0', 'subj_word_1:d0', 'subj_word_n:d0' , '|subj_d1', 'subj_word_1:d1', ...
 def reorder_subword_vectors(subword_vect_list, section):
     section_vw = []
     vector_index = 0
@@ -23,22 +23,21 @@ def reorder_subword_vectors(subword_vect_list, section):
     return section_vw
 
 
-# goal: 1 |subj_d1 subj_word1:d1 subj_word2:d1 ... |subj_d2 subj_word1:d2 ... |text_d1 text_word1:d1 text_word2:d1 ...
+# output format: 1 |subj_d1 subj_word1:d1 subj_word2:d1 ... |subj_d2 subj_word1:d2 ...
 def subword_vectors_to_vw_fmt(pd_series, data):
     # input format: [[token_1_id, vector1[]], [token_2_id, vector2[]], ...] from pandas df
 
     # output format: ['|subj_d0', 'subj_word_1:d0', 'subj_word_n:d0' , '|subj_d1', 'subj_word_1:d1', ...,
-    #                 '|text_d1', 'text_word_1_d1', ...]
     section_vw = reorder_subword_vectors(data[pd_series], pd_series)
 
     # convert to str
-    vw_seperator = " "
+    vw_seperator = ' '
     vw_str = vw_seperator.join(section_vw)
 
     return vw_str
 
 
-# goal: 1 |subj_d1 d1, |subj_d2 d2, ... |text_d1 d1, |text_d2 d2, ...
+# output format: 1 |subj_d1 d1, |subj_d2 d2, ...
 def doc_vectors_to_vw_fmt(pd_series, data):
     vector_index = 1
     vw_str = f"|{pd_series}"

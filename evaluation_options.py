@@ -34,20 +34,21 @@ combinations_to_test = [
 ]
 
 # vw model options
-random_state_list = [7, 11, 54]
+# random_state_list = [7, 11, 54] see main
+random_state_list = [7]
 vw_opts_list = []
 for random_state in random_state_list:
     vw_opts_list.append(
         {
             # General options
-            "random_seed": random_state,  # changing random_seed to account for anomalous behaviour
+            'random_seed': random_state,
             # Output options
-            "progress": 1000,
+            'progress': 1000,
             # Update rule options
-            "loss_function": "logistic",
+            'loss_function': 'logistic',
             # Weight options
-            "bit_precision": 28,
+            'bit_precision': 28,
             # Multiclass options
-            "oaa": 20
+            'oaa': 20
         }
     )

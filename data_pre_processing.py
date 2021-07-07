@@ -12,7 +12,7 @@ def sk_to_pd_df(sk_bunch, target_dict):
     pd_df = pd.DataFrame(data=[sk_bunch.data, sk_bunch.target])
     pd_df = pd_df.transpose()
     pd_df.columns = ['text', 'target']
-    pd_df["target"] = pd_df["target"].map(target_dict)
+    pd_df['target'] = pd_df['target'].map(target_dict)
     return pd_df
 
 
@@ -22,15 +22,15 @@ def extract_section_Subject(pd_df):
     email_subject_rgx = re.compile(r'(?<=Subject: ).*')
     subject_content_rgx = re.compile(r'(?<=[rR]e: ).*')
     subject_content_dict = {}
-    pd_df.insert(loc=len(pd_df.columns), column="Subject",
-                 value=pd_df["text"].apply(lambda text: email_subject_rgx.search(text).group()))
+    pd_df.insert(loc=len(pd_df.columns), column='Subject',
+                 value=pd_df['text'].apply(lambda text: email_subject_rgx.search(text).group()))
     for doc in tqdm(pd_df['Subject']):
         try:
             subject_content = subject_content_rgx.search(doc).group()
             subject_content_dict[doc] = subject_content
         except AttributeError:  # no '(R/r)e: ' in subject
             subject_content_dict[doc] = doc
-    pd_df['Subject'] = pd_df["Subject"].map(subject_content_dict)
+    pd_df['Subject'] = pd_df['Subject'].map(subject_content_dict)
 
     return pd_df
 
@@ -47,13 +47,13 @@ def extract_section_pure_text(pd_df):
             try:
                 metadata = metadata_rgx_2.search(doc).group()
             except AttributeError:
-                print("AttributeError: Check df['text'], index= ", ctr2)
+                print('AttributeError: Check df[\'text\'], index= ', ctr2)
         try:
             pure_text_list.append(doc.replace(metadata, ''))
         except NameError as error:
             print(error)
         ctr2 += 1
-    pd_df.insert(loc=len(pd_df.columns), column="pure_text", value=pure_text_list)
+    pd_df.insert(loc=len(pd_df.columns), column='pure_text', value=pure_text_list)
 
     return 0
 
@@ -76,7 +76,7 @@ def extract_text_info(pd_df):
             try:
                 metadata = metadata_rgx_2.search(doc).group()
             except AttributeError:
-                print("AttributeError: Check df['text']")
+                print('AttributeError: Check df[\'text\']')
         try:
             text_content = f"{subject_content} {doc.replace(metadata, '')}"
             text_content_list.append(text_content)
