@@ -107,7 +107,7 @@ def main(process_data, train_test_model, run=1):
             test_str_list = to_vw(processed_data_fpath, features, train=False)
             for vw_opts in vw_opts_list:
                 # changing random_seed does not appear to change the vw_model predictions, keeping it temporarily
-                random_state = vw_opts["random_seed"]
+                random_state = vw_opts['random_seed']
                 # generate vw_model with corresponding params
                 vw_model = pyvw.vw(**vw_opts)
 
@@ -128,4 +128,4 @@ def main(process_data, train_test_model, run=1):
 
 
 if __name__ == "__main__":
-    main(process_data=False, train_test_model=True, run=1)
+    main(process_data=False, train_test_model=False, run=1)

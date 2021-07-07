@@ -48,7 +48,7 @@ Accuracy score | Features
 2) text_data
 - 0.9029105587422988 | text_data_lem (pure BOW)
 - 0.9012109623964308 | text_data_unq_sw_vect (pure subword_vectors)
-- 0.9009985128531973 |  text_data_lem, text_data_unq_sw_vect (BOW and subword_vectors)
+- 0.9009985128531973 | text_data_lem, text_data_unq_sw_vect (BOW and subword_vectors)
 
 3) text_data and Subject
 - 0.9003611642234969 | pure_text_lem, Subject_lem (pure BOW)

@@ -1,20 +1,17 @@
 import os
 import re
-import gc
 import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 
-# input label format example: "5"
-# input feature format example (vect): "|Subject_unq_sw_vect_d0 id19:0.563 ... |Subject_unq_sw_vect_d1 id32:0.521 ..."
-# input feature format example (text): "|text_data_lem year biggest worst ..."
+# input label format example: '5'
+# input feature format example (vect): '|Subject_unq_sw_vect_d0 id19:0.563 ... |Subject_unq_sw_vect_d1 id32:0.521 ...'
+# input feature format example (text): '|text_data_lem year biggest worst ...'
 # notes about input feature format:
 # 1) whitespace absent at front and end of string
 # 2) features are already in vw format, only need to append to current vw line
-# output to vw format: "[label] [feature_1] [feature_2] ...
+# output to vw format: '[label] [feature_1] [feature_2] ...'
 def to_vw(processed_data_fpath, features, train):
     strip_newline = re.compile(r'\n')
     if train:
@@ -25,7 +22,7 @@ def to_vw(processed_data_fpath, features, train):
         filenames_list = []
         for feature in features:
             filenames_list.append(f"{feature}_test.txt")
-    file_list = [open(os.path.join(processed_data_fpath, filename), "r") for filename in filenames_list]
+    file_list = [open(os.path.join(processed_data_fpath, filename), 'r') for filename in filenames_list]
     vw_str_list = []
     for feature_tuple in tqdm(zip(*file_list)):
         vw_str = ''.join(feature_tuple)
@@ -53,9 +50,9 @@ def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpa
     # write results out to file
     if os.path.isfile(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt")):
         os.remove(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt"))
-    with open(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt"), "a") as pred_file:
+    with open(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt"), 'a') as pred_file:
         for pred in predictions:
-            pred_file.write(str(pred) + "\n")
+            pred_file.write(str(pred) + '\n')
 
     # store classification report
     report = classification_report(labels, predictions, output_dict=True)
@@ -69,15 +66,7 @@ def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpa
         f.write(f"Features: {features_str}")
         f.write(f"\nAccuracy Score = ")
         f.write(str(accuracy_score(labels, predictions)))
-    print("Classification report:")
+    print('Classification report:')
     print(classification_report(labels, predictions))
-    print("Accuracy score:")
+    print('Accuracy score:')
     print(accuracy_score(labels, predictions))
-
-    plot_cm = False
-    if plot_cm:
-        cm = confusion_matrix(labels, predictions)
-        fig, ax = plt.subplots(figsize=(20, 20))
-        sns.heatmap(
-            cm, linewidth=0.5, annot=True, fmt=".0f", cmap="Blues", ax=ax, square=True
-        )
