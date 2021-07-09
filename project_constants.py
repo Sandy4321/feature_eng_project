@@ -36,3 +36,18 @@ target_dict = {
         18: 19,
         19: 20
     }
+
+# for conversion to vw format, ensure each namespace has a unique first char
+
+pd_series_first_char_dict = {
+        # text sections
+        'Subject_lem': 'a',
+        'pure_text_lem': 'b',
+        'text_data_lem': 'c',
+        # doc vector sections
+        'Subject_unq_m_vect': 'd',
+        # subword vector sections
+        'Subject_unq_sw_vect': 'e',
+        'pure_text_unq_sw_vect': 'f',
+        'text_data_unq_sw_vect': 'g'
+}

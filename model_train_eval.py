@@ -39,7 +39,7 @@ def train_model(vw_model, train_str_list):
     return 0
 
 
-def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpath, pred_filename, random_state, run=1):
+def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpath, pred_filename, ngrams, run=1):
     predictions = []
     for sample in test_str_list:
         predictions.append(vw_model.predict(sample))
@@ -48,16 +48,16 @@ def eval_model(vw_model, test_str_list, processed_data_fpath, features, pred_fpa
         labels = list(map(int, labels))
 
     # write results out to file
-    if os.path.isfile(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt")):
-        os.remove(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt"))
-    with open(os.path.join(pred_fpath, f"{pred_filename}_r{random_state}_{run}.txt"), 'a') as pred_file:
+    if os.path.isfile(os.path.join(pred_fpath, f"{pred_filename}_n{ngrams}_{run}.txt")):
+        os.remove(os.path.join(pred_fpath, f"{pred_filename}_n{ngrams}_{run}.txt"))
+    with open(os.path.join(pred_fpath, f"{pred_filename}_n{ngrams}_{run}.txt"), 'a') as pred_file:
         for pred in predictions:
             pred_file.write(str(pred) + '\n')
 
     # store classification report
     report = classification_report(labels, predictions, output_dict=True)
     report_df = pd.DataFrame(report).transpose()
-    classification_report_fname = f"Classification_report_r{random_state}_{run}"
+    classification_report_fname = f"Classification_report_n{ngrams}_{run}"
     report_df.to_csv(os.path.join(pred_fpath, f"{classification_report_fname}.txt"))
 
     # store features and accuracy score
