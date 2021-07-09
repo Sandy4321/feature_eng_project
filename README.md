@@ -1,4 +1,18 @@
-# feature_eng_project
+v2.1:
+Changes:
+- Added support for ngrams with vowpal wabbit
+
+convert_to_vw_format:
+- Added unique alphabetical character at start of each namespace
+
+evaluation_options:
+- combinations_to_test
+- old format: [[feature_1, feature_2, ...], [feature_1, ...], ...]
+- new format: [[['feature_1', ...], [vw_opt1, ...]], [['feature_1', ...], [vw_opt1, ...]]...]
+
+New highest accuracy score = 0.9203314212874443
+Features: text_data_lem (BOW)
+vw_opts: 'ngram': c3 (text_data_lem 3-grams)
 v2.0:
 
 main (2 new args):
