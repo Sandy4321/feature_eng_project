@@ -1,0 +1,2 @@
+Features: pure_text_lem, Subject_lem
+Accuracy Score = 0.9001487146802635

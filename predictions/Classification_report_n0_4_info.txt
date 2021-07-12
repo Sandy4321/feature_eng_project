@@ -1,0 +1,2 @@
+Features: text_data_lem
+Accuracy Score = 0.9031230082855322

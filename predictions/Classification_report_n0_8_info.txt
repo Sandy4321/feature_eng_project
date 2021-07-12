@@ -1,0 +1,2 @@
+Features: pure_text_unq_sw_vect, Subject_unq_sw_vect
+Accuracy Score = 0.9158699808795411
