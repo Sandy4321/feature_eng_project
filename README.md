@@ -1,3 +1,17 @@
+v2.2:
+Changes:
+- Add support for hyperopt to optimize l1 and l2 regularization
+
+main.py:
+- Additional use_hyperopt arg to choose to run with hyperopt or not
+
+evaluation_options:
+- 2 different combinations_to_test based on use_hyperopt arg
+
+model_train_eval:
+- store_results_hyperopt and model_train_test_hyperopt to support running with hyperopt
+- store_results now saves f1_score as well
+
 v2.1:
 Changes:
 - Added support for ngrams with vowpal wabbit
@@ -36,7 +50,7 @@ evaluation_options:
 - Stores which features to use for vw_model training/evaluation
 - Stores vw_model config
 
-Dependencies downloaded seperately:
+Dependencies downloaded separately:
 - bpemb_en model (https://bpemb.h-its.org/en/en.wiki.bpe.vs200000.model)
 - bpemb_en vocab (https://bpemb.h-its.org/en/en.wiki.bpe.vs200000.d300.w2v.bin.tar.gz)
 - save bpemb_en model and vocab in \project_working_directory\bpemb_model

@@ -1,2 +1,0 @@
-Features: text_data_lem, text_data_unq_sw_vect
-Accuracy Score = 0.9037603569152326

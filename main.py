@@ -1,6 +1,7 @@
+# general python modules
+import os
 # NLP modules
 import gc
-
 import spacy
 # ML modules
 from vowpalwabbit import pyvw
@@ -24,14 +25,13 @@ from project_constants import (
 from data_wrangling import text_lemmatization, doc_mean_vectors, remove_dup_words, subword_embedding
 from data_pre_processing import sk_to_pd_df, text_pre_processing
 from convert_to_vw_format import pd_to_vw_fmt
-from evaluation_options import combinations_to_test
-from model_train_eval import to_vw, train_model, eval_model
+from evaluation_options import combinations_to_use
+from model_train_eval import to_vw, model_train_test_hyperopt, train_model, eval_model, store_results
 
 
-def main(process_data, train_test_model, run=1):
+def main(process_data, train_test_model, run=1, use_hyperopt=False):
     # process data for training and testing of vw_model
     if process_data:
-
         #  loading in data
         newsgroups = load_files(raw_data_fpath, encoding='ANSI')
         df = sk_to_pd_df(newsgroups, target_dict)
@@ -88,7 +88,7 @@ def main(process_data, train_test_model, run=1):
                      subword_vector_sections_to_convert=['Subject_unq_sw_vect',
                                                          'pure_text_unq_sw_vect',
                                                          'text_data_unq_sw_vect'],
-                     filepath=processed_data_fpath, train=True,)
+                     filepath=processed_data_fpath, train=True, )
         # store testing data
         pd_to_vw_fmt(pd_df=data_test,
                      text_sections_to_convert=['Subject_lem',
@@ -104,33 +104,55 @@ def main(process_data, train_test_model, run=1):
     # save classification report as .csv file
     # save features and accuracy score together in a .txt file
     if train_test_model:
-        for features in combinations_to_test:
-            train_str_list = to_vw(processed_data_fpath, features[0], train=True)
-            test_str_list = to_vw(processed_data_fpath, features[0], train=False)
-            for vw_opts in features[1]:
-                print(vw_opts)
-                try:
-                    ngram = vw_opts['ngram'][-1]
-                except KeyError:
-                    ngram = 0
-                # generate vw_model with corresponding params
-                vw_model = pyvw.vw(**vw_opts)
+        combinations_to_test = combinations_to_use(use_hyperopt)
+        # not using hyperopt
+        if not use_hyperopt:
+            with open(os.path.join(processed_data_fpath, 'test_data_labels.txt')) as label_file:
+                labels = label_file.readlines()
+                labels = list(map(int, labels))
+            for features in combinations_to_test:
+                train_str_list = to_vw(processed_data_fpath, features[0], train=True)
+                test_str_list = to_vw(processed_data_fpath, features[0], train=False)
+                for vw_opts in features[1]:
+                    print(vw_opts)
+                    try:
+                        ngrams = vw_opts['ngram'][-1]
+                    except KeyError:
+                        ngrams = 0
+                    # generate vw_model with corresponding params
+                    vw_model = pyvw.vw(**vw_opts)
 
-                # train vw_model
-                train_model(vw_model, train_str_list)
+                    # train vw_model
+                    train_model(vw_model, train_str_list)
 
-                # evaluate vw_model against test set
-                eval_model(vw_model, test_str_list, processed_data_fpath,
-                           features[0], pred_fpath, pred_filename,
-                           ngram, run=run)
-            # to prevent MemoryError
-            del train_str_list
-            del test_str_list
-            gc.collect()
-            run += 1
+                    # evaluate vw_model against test set
+                    predictions = eval_model(vw_model, test_str_list)
+
+                    # save results
+                    store_results(features[0], pred_fpath, pred_filename, labels, predictions, ngrams, run)
+
+                # to prevent MemoryError
+                del train_str_list
+                del test_str_list
+                gc.collect()
+                run += 1
+        # using hyperopt for l1 and l2 regularization
+        else:
+            for features in combinations_to_test:
+                train_str_list = to_vw(processed_data_fpath, features, train=True)
+                test_str_list = to_vw(processed_data_fpath, features, train=False)
+
+                model_train_test_hyperopt(train_str_list, test_str_list, processed_data_fpath,
+                                          features, pred_fpath, run=run)
+
+                # to prevent MemoryError
+                del train_str_list
+                del test_str_list
+                gc.collect()
+                run += 1
 
     return 0
 
 
 if __name__ == "__main__":
-    main(process_data=False, train_test_model=True, run=1)
+    main(process_data=False, train_test_model=True, run=20, use_hyperopt=True)

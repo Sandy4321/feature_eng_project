@@ -1,2 +1,3 @@
 Features: pure_text_lem, Subject_lem
-Accuracy Score = 0.9118334395581049
+Accuracy Score = 0.9184193753983428
+VW_model_opts: {'l1': 2.2356414024580864e-08, 'l2': 6.168724358247892e-06}
