@@ -1,6 +1,6 @@
 v2.2:
 Changes:
-- Add support for hyperopt to optimize l1 and l2 regularization
+- Integrated hyperopt to optimize l1 and l2 regularization
 
 main.py:
 - Additional use_hyperopt arg to choose to run with hyperopt or not

@@ -74,7 +74,7 @@ def store_results(features, pred_fpath, pred_filename, labels, predictions, ngra
     classification_report_fname = f"Classification_report_n{ngrams}_{run}"
     report_df.to_csv(os.path.join(pred_fpath, f"{classification_report_fname}.txt"))
 
-    # store features and accuracy score
+    # store features, accuracy score and f1 score
     with open(os.path.join(pred_fpath, f"{classification_report_fname}_info.txt"), 'a') as f:
         features_str = ', '.join(features)
         f.write(f"Features: {features_str}")
