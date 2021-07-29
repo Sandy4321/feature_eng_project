@@ -1,0 +1,3 @@
+Features: pure_text_lem
+Accuracy Score = 0.8973868706182282
+VW_model_opts: {'l1': 1.1461484329637262e-08, 'l2': 9.643543877331566e-07, 'ngram': 2}

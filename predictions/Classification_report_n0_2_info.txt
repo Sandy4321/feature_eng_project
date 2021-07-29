@@ -1,0 +1,3 @@
+Features: pure_text_unq_sw_vect
+Accuracy Score = 0.8865519439133206
+VW_model_opts: {'l1': 1.180428368811046e-08, 'l2': 5.057233825689826e-06}
